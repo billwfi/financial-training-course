@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wheel of Life — Financial Fundamentals</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <style>
+    body { background: var(--gray-50); }
+
+    .wol-header {
+      background: var(--navy);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .wol-header a { color: var(--gray-300); font-size: 0.85rem; }
+    .wol-header a:hover { color: var(--white); }
+    .wol-header h1 { color: var(--white); font-size: 1rem; flex: 1; }
+
+    /* ── Hero ───────────────────────────────────────────── */
+    .wol-hero {
+      background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+      color: var(--white);
+      text-align: center;
+      padding: 52px 24px 40px;
+    }
+    .wol-hero h2 { color: var(--white); font-size: clamp(1.5rem, 3vw, 2.2rem); margin-bottom: 12px; }
+    .wol-hero p { color: var(--gray-300); max-width: 560px; margin: 0 auto; font-size: 1rem; }
+
+    /* ── Main layout ────────────────────────────────────── */
+    .wol-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* ── Wheel canvas area ──────────────────────────────── */
+    .wheel-area {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wheel-area h3 { margin-bottom: 4px; text-align: center; }
+    .wheel-subtitle { color: var(--gray-500); font-size: 0.85rem; text-align: center; margin-bottom: 24px; }
+
+    #wheel-svg {
+      width: 100%;
+      max-width: 420px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .wheel-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 24px;
+      width: 100%;
+    }
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 6px;
+      border-radius: var(--radius);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
+    }
+    .legend-item:hover { border-color: var(--gray-200); background: var(--gray-50); }
+    .legend-item.selected { border-color: currentColor; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+    .legend-label { font-size: 0.72rem; font-weight: 600; color: var(--navy); line-height: 1.3; }
+    .legend-score { font-size: 1rem; font-weight: 800; }
+
+    /* ── Sliders panel ──────────────────────────────────── */
+    .sliders-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sliders-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .sliders-card-header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      transition: background var(--transition);
+    }
+    .slider-row:last-of-type { border-bottom: none; }
+    .slider-row:hover { background: var(--gray-50); }
+    .slider-emoji { font-size: 1.3rem; width: 28px; text-align: center; flex-shrink: 0; }
+    .slider-info { flex: 1; min-width: 0; }
+    .slider-name { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .slider-desc { font-size: 0.75rem; color: var(--gray-500); margin-top: 2px; }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--gray-200);
+      outline: none;
+      margin-top: 6px;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--navy);
+      cursor: pointer;
+      border: 3px solid var(--white);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .slider-score-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--white);
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+
+    /* Save & actions */
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--gray-100);
+    }
+
+    /* ── Score summary ───────────────────────────────────── */
+    .summary-section {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .summary-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .summary-num { font-size: 2rem; font-weight: 800; }
+    .summary-label { font-size: 0.8rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+    /* ── Action plan ─────────────────────────────────────── */
+    .action-plan {
+      max-width: 1100px;
+      margin: 0 auto 60px;
+      padding: 0 24px;
+    }
+    .action-plan h3 { font-size: 1.3rem; margin-bottom: 8px; }
+    .action-plan .sub { color: var(--gray-500); margin-bottom: 24px; }
+
+    .focus-areas { display: flex; flex-direction: column; gap: 14px; }
+    .focus-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid transparent;
+      transition: box-shadow var(--transition);
+    }
+    .focus-card:hover { box-shadow: var(--shadow-md); }
+    .focus-card-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .focus-card-body { flex: 1; }
+    .focus-card-title { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-bottom: 4px; }
+    .focus-card-desc { font-size: 0.88rem; color: var(--gray-500); }
+    .focus-score-bar { margin-top: 10px; }
+    .focus-score-label { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .focus-card-link { margin-left: auto; align-self: center; flex-shrink: 0; }
+
+    /* ── Print / export strip ───────────────────────────── */
+    .print-strip {
+      background: var(--gold-pale);
+      border-top: 2px solid var(--gold);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .print-strip p { font-size: 0.9rem; color: var(--navy); font-weight: 600; }
+
+    @media print {
+      .wol-header, .actions-row, .print-strip, .focus-card-link { display: none; }
+      body { background: white; }
+      .wol-main { grid-template-columns: 1fr; }
+      .sliders-panel { display: none; }
+    }
+
+    @media (max-width: 900px) {
+      .wol-main { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: repeat(3, 1fr); }
+      .wheel-legend { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .wheel-legend { grid-template-columns: repeat(2, 1fr); }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="wol-header">
+  <a href="index.html">← Home</a>
+  <h1>Wheel of Life Assessment</h1>
+  <a href="course.html" class="btn btn-primary btn-sm">Go to Course</a>
+</header>
+
+<div class="wol-hero">
+  <h2>Where Are You Now?</h2>
+  <p>Rate each area of your life from 1 (needs urgent attention) to 10 (thriving). Be honest — this is your starting point, not a judgement.</p>
+</div>
+
+<!-- Main grid: wheel + sliders -->
+<div class="wol-main">
+
+  <!-- Left: SVG Wheel -->
+  <div class="wheel-area">
+    <h3>Your Wheel of Life</h3>
+    <p class="wheel-subtitle">Click any ring on the wheel to set a score, or use the sliders →</p>
+    <svg id="wheel-svg" viewBox="-160 -160 320 320" xmlns="http://www.w3.org/2000/svg" aria-label="Wheel of Life chart">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- drawn by JS -->
+    </svg>
+    <!-- Legend below wheel -->
+    <div class="wheel-legend" id="wheel-legend"></div>
+  </div>
+
+  <!-- Right: Sliders -->
+  <div class="sliders-panel">
+    <div class="sliders-card">
+      <div class="sliders-card-header">Rate Each Area (1–10)</div>
+      <div id="sliders-list"></div>
+      <div class="actions-row">
+        <button class="btn btn-primary" style="flex:1" onclick="saveAndUpdate()">Save My Wheel</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetScores()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Overall score card -->
+    <div class="sliders-card" id="overall-card">
+      <div class="sliders-card-header">Overall Life Balance</div>
+      <div style="padding:20px;">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:3rem;font-weight:800;color:var(--navy)" id="overall-score">—</div>
+          <div style="font-size:0.8rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px;">Average Score</div>
+        </div>
+        <div class="progress-bar-wrap" style="height:12px;margin-bottom:8px;">
+          <div class="progress-bar-fill" id="overall-bar" style="width:0%"></div>
+        </div>
+        <p style="font-size:0.85rem;color:var(--gray-500);text-align:center;" id="overall-msg"></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Summary -->
+<div class="summary-section" id="summary-section" style="display:none">
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-num" id="sum-highest-score" style="color:var(--green)">—</div>
+      <div class="summary-label">Highest Spoke</div>
+      <div style="font-size:0.85rem;margin-top:6px;color:var(--gray-700)" id="sum-highest-name"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" id="sum-lowest-score" style="color:var(--red)">—</div>
+      <div class="summary-label">Needs Most Attention</div>
+      <div style="font-size:0.85rem;margin-top:6px;color:var(--gray-700)" id="sum-lowest-name"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" id="sum-gap" style="color:var(--gold)">—</div>
+      <div class="summary-label">Balance Gap</div>
+      <div style="font-size:0.75rem;margin-top:6px;color:var(--gray-500)">Difference between highest and lowest</div>
+    </div>
+  </div>
+</div>
+
+<!-- Action Plan -->
+<div class="action-plan" id="action-plan" style="display:none">
+  <h3>Your Personalised Action Plan</h3>
+  <p class="sub">Based on your scores, here are the areas to focus on and how this course can help.</p>
+  <div class="focus-areas" id="focus-areas-list"></div>
+  <div style="text-align:center;margin-top:32px;">
+    <a href="course.html" class="btn btn-navy" style="font-size:1rem;padding:14px 36px;">
+      Start Your Learning Path →
+    </a>
+  </div>
+</div>
+
+<!-- Print strip -->
+<div class="print-strip">
+  <p>📄 Save your Wheel of Life assessment</p>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-outline btn-sm" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyScores()">Copy Scores</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SPOKES = [
+  { key: 'career',      label: 'Career & Work',        short: 'Career',      emoji: '💼', color: '#3b82f6', desc: 'Fulfillment, growth, and purpose in your work' },
+  { key: 'money',       label: 'Money & Finances',      short: 'Money',       emoji: '💰', color: '#c9a227', desc: 'Financial security, control, and abundance' },
+  { key: 'health',      label: 'Health & Fitness',      short: 'Health',      emoji: '🏃', color: '#22c55e', desc: 'Physical energy, mental wellbeing, and vitality' },
+  { key: 'family',      label: 'Family & Friends',      short: 'Family',      emoji: '🧡', color: '#f97316', desc: 'Quality of your relationships and support network' },
+  { key: 'romance',     label: 'Romance & Partnership', short: 'Romance',     emoji: '❤️', color: '#ec4899', desc: 'Intimacy, love, and connection with your partner' },
+  { key: 'growth',      label: 'Personal Growth',       short: 'Growth',      emoji: '📚', color: '#8b5cf6', desc: 'Learning, self-improvement, and becoming your best self' },
+  { key: 'fun',         label: 'Fun & Recreation',      short: 'Fun',         emoji: '🎯', color: '#06b6d4', desc: 'Joy, hobbies, play, and experiences that recharge you' },
+  { key: 'environment', label: 'Physical Environment',  short: 'Environment', emoji: '🏠', color: '#64748b', desc: 'Your home, workspace, and physical surroundings' },
+];
+
+const COURSE_LINKS = {
+  career:      { module: 'Goal Setting & Financial Planning', url: 'course.html', hint: 'Connect career goals to your financial plan' },
+  money:       { module: 'Financial Foundations',             url: 'course.html', hint: 'Build your net worth baseline and cash flow clarity' },
+  health:      { module: 'Wheel of Life Introduction',        url: 'course.html', hint: 'Understand the health–finance connection' },
+  family:      { module: 'Goal Setting & Financial Planning', url: 'course.html', hint: 'Fund the relationships that matter most' },
+  romance:     { module: 'Budgeting & Spending Plans',        url: 'course.html', hint: 'Create shared financial goals with your partner' },
+  growth:      { module: 'Goal Setting & Financial Planning', url: 'course.html', hint: 'Invest in education and personal development' },
+  fun:         { module: 'Budgeting & Spending Plans',        url: 'course.html', hint: 'Build discretionary spending into your plan' },
+  environment: { module: 'Financial Foundations',             url: 'course.html', hint: 'Plan for your home and lifestyle goals' },
+};
+
+const R = 120;
+const N = SPOKES.length;
+const STORAGE_KEY = 'wol-scores';
+
+let scores = {};
+let selectedSpoke = null;
+
+function loadScores() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    scores = JSON.parse(saved);
+  } else {
+    SPOKES.forEach(s => scores[s.key] = 5);
+  }
+}
+
+function saveScores() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+}
+
+function angle(i) {
+  return (i / N) * 2 * Math.PI - Math.PI / 2;
+}
+
+function polar(i, score) {
+  const a = angle(i);
+  const r = (score / 10) * R;
+  return { x: r * Math.cos(a), y: r * Math.sin(a) };
+}
+
+function polarLabel(i) {
+  const a = angle(i);
+  const r = R + 30;
+  return { x: r * Math.cos(a), y: r * Math.sin(a) };
+}
+
+/* ── Draw the SVG wheel ──────────────────────────────────── */
+function drawWheel() {
+  const svg = document.getElementById('wheel-svg');
+  svg.innerHTML = '';
+
+  const ns = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs = {}, text = '') {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  // Background rings
+  for (let ring = 10; ring >= 1; ring--) {
+    const r = (ring / 10) * R;
+    const c = el('circle', {
+      cx: 0, cy: 0, r,
+      fill: ring % 2 === 0 ? 'rgba(240,242,248,0.8)' : 'rgba(255,255,255,0.6)',
+      stroke: 'rgba(200,207,224,0.5)',
+      'stroke-width': '0.5'
+    });
+    svg.appendChild(c);
+  }
+
+  // Spoke grid lines
+  SPOKES.forEach((_, i) => {
+    const a = angle(i);
+    const x = R * Math.cos(a), y = R * Math.sin(a);
+    svg.appendChild(el('line', {
+      x1: 0, y1: 0, x2: x, y2: y,
+      stroke: 'rgba(200,207,224,0.8)', 'stroke-width': '1'
+    }));
+  });
+
+  // Score ring labels (at the "money" spoke, right side)
+  for (let ring = 2; ring <= 10; ring += 2) {
+    const r = (ring / 10) * R;
+    svg.appendChild(el('text', {
+      x: 4, y: -r + 4,
+      'font-size': '7', fill: 'rgba(120,135,168,0.8)',
+      'text-anchor': 'start'
+    }, String(ring)));
+  }
+
+  // Filled polygon (score shape)
+  const points = SPOKES.map((s, i) => {
+    const p = polar(i, scores[s.key] || 0);
+    return `${p.x},${p.y}`;
+  }).join(' ');
+
+  // Gradient fill effect using multiple polygons per spoke sector
+  SPOKES.forEach((s, i) => {
+    const next = (i + 1) % N;
+    const p0 = polar(i, scores[s.key] || 0);
+    const p1 = polar(next, scores[SPOKES[next].key] || 0);
+    const sector = el('polygon', {
+      points: `0,0 ${p0.x},${p0.y} ${p1.x},${p1.y}`,
+      fill: s.color,
+      opacity: '0.18'
+    });
+    svg.appendChild(sector);
+  });
+
+  // Main polygon outline
+  svg.appendChild(el('polygon', {
+    points,
+    fill: 'rgba(26,39,68,0.08)',
+    stroke: 'var(--navy)',
+    'stroke-width': '1.5',
+    'stroke-linejoin': 'round'
+  }));
+
+  // Score dots on each spoke
+  SPOKES.forEach((s, i) => {
+    const p = polar(i, scores[s.key] || 0);
+    svg.appendChild(el('circle', {
+      cx: p.x, cy: p.y, r: '5',
+      fill: s.color, stroke: 'white', 'stroke-width': '2',
+      filter: 'url(#glow)'
+    }));
+  });
+
+  // Clickable invisible spoke segments (for interactive scoring)
+  SPOKES.forEach((s, i) => {
+    for (let score = 10; score >= 1; score--) {
+      const inner = polar(i, score - 1);
+      const outer = polar(i, score);
+      // We use a wide invisible line along each spoke for click detection
+      const hitLine = el('line', {
+        x1: inner.x, y1: inner.y,
+        x2: outer.x, y2: outer.y,
+        stroke: 'transparent', 'stroke-width': '28',
+        cursor: 'pointer',
+        'data-key': s.key, 'data-score': score
+      });
+      hitLine.addEventListener('click', () => {
+        scores[s.key] = score;
+        syncSlider(s.key, score);
+        drawWheel();
+        updateLegend();
+        updateOverall();
+      });
+      hitLine.addEventListener('mouseenter', function() {
+        this.setAttribute('stroke', s.color);
+        this.setAttribute('opacity', '0.15');
+      });
+      hitLine.addEventListener('mouseleave', function() {
+        this.setAttribute('stroke', 'transparent');
+      });
+      svg.appendChild(hitLine);
+    }
+
+    // Spoke label
+    const lp = polarLabel(i);
+    const a = angle(i);
+    const degrees = (a * 180 / Math.PI + 360) % 360;
+    let anchor = 'middle';
+    if (degrees > 15 && degrees < 165) anchor = 'start';
+    else if (degrees > 195 && degrees < 345) anchor = 'end';
+
+    const g = el('g', { cursor: 'pointer' });
+    g.addEventListener('click', () => highlightSpoke(s.key));
+
+    const emojiText = el('text', {
+      x: lp.x, y: lp.y - 6,
+      'font-size': '14', 'text-anchor': anchor,
+      'dominant-baseline': 'middle'
+    }, s.emoji);
+
+    const labelText = el('text', {
+      x: lp.x, y: lp.y + 10,
+      'font-size': '8.5',
+      fill: selectedSpoke === s.key ? s.color : '#3d4f6e',
+      'font-weight': selectedSpoke === s.key ? '700' : '500',
+      'text-anchor': anchor,
+      'dominant-baseline': 'middle'
+    }, s.short);
+
+    const scoreText = el('text', {
+      x: lp.x, y: lp.y + 21,
+      'font-size': '9',
+      fill: s.color,
+      'font-weight': '800',
+      'text-anchor': anchor,
+      'dominant-baseline': 'middle'
+    }, String(scores[s.key] || 0));
+
+    g.appendChild(emojiText);
+    g.appendChild(labelText);
+    g.appendChild(scoreText);
+    svg.appendChild(g);
+  });
+}
+
+/* ── Legend below wheel ──────────────────────────────────── */
+function updateLegend() {
+  const lg = document.getElementById('wheel-legend');
+  lg.innerHTML = SPOKES.map(s => `
+    <div class="legend-item ${selectedSpoke === s.key ? 'selected' : ''}" onclick="highlightSpoke('${s.key}')" style="color:${s.color}">
+      <div class="legend-dot" style="background:${s.color}"></div>
+      <div class="legend-label">${s.short}</div>
+      <div class="legend-score" style="color:${s.color}">${scores[s.key]}</div>
+    </div>
+  `).join('');
+}
+
+function highlightSpoke(key) {
+  selectedSpoke = selectedSpoke === key ? null : key;
+  drawWheel();
+  updateLegend();
+  // Scroll to corresponding slider
+  const el = document.getElementById('slider-' + key);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ── Sliders ─────────────────────────────────────────────── */
+function renderSliders() {
+  const list = document.getElementById('sliders-list');
+  list.innerHTML = SPOKES.map(s => `
+    <div class="slider-row" id="slider-row-${s.key}">
+      <span class="slider-emoji">${s.emoji}</span>
+      <div class="slider-info">
+        <div class="slider-name">${s.label}</div>
+        <div class="slider-desc">${s.desc}</div>
+        <input type="range" id="slider-${s.key}" min="1" max="10" step="1"
+          value="${scores[s.key] || 5}"
+          style="--color:${s.color}"
+          oninput="onSliderInput('${s.key}', this.value)" />
+      </div>
+      <div class="slider-score-badge" id="badge-${s.key}" style="background:${scoreColor(scores[s.key] || 5)}">
+        ${scores[s.key] || 5}
+      </div>
+    </div>
+  `).join('');
+
+  // Style the range track fill
+  SPOKES.forEach(s => updateSliderTrack(s.key));
+}
+
+function updateSliderTrack(key) {
+  const slider = document.getElementById('slider-' + key);
+  if (!slider) return;
+  const s = SPOKES.find(x => x.key === key);
+  const pct = ((scores[key] - 1) / 9) * 100;
+  slider.style.background = `linear-gradient(to right, ${s.color} ${pct}%, var(--gray-200) ${pct}%)`;
+}
+
+function onSliderInput(key, val) {
+  scores[key] = parseInt(val);
+  const badge = document.getElementById('badge-' + key);
+  if (badge) {
+    badge.textContent = val;
+    badge.style.background = scoreColor(parseInt(val));
+  }
+  updateSliderTrack(key);
+  drawWheel();
+  updateLegend();
+  updateOverall();
+}
+
+function syncSlider(key, val) {
+  const slider = document.getElementById('slider-' + key);
+  if (slider) {
+    slider.value = val;
+    onSliderInput(key, val);
+  }
+}
+
+function scoreColor(score) {
+  if (score <= 3) return '#ef4444';
+  if (score <= 5) return '#f97316';
+  if (score <= 7) return '#eab308';
+  return '#22c55e';
+}
+
+/* ── Overall score ───────────────────────────────────────── */
+function updateOverall() {
+  const vals = SPOKES.map(s => scores[s.key] || 0);
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const rounded = Math.round(avg * 10) / 10;
+
+  document.getElementById('overall-score').textContent = rounded.toFixed(1);
+  document.getElementById('overall-bar').style.width = (avg * 10) + '%';
+
+  let msg = '';
+  if (avg <= 3)      msg = 'There are significant areas needing urgent attention. Start with the biggest gaps.';
+  else if (avg <= 5) msg = 'You have a foundation to build on. Focus on your lowest areas first.';
+  else if (avg <= 7) msg = 'Good balance overall. Fine-tuning a few areas will make a big difference.';
+  else               msg = 'You\'re thriving! Use this course to protect and grow what you\'ve built.';
+  document.getElementById('overall-msg').textContent = msg;
+}
+
+/* ── Save & reveal plan ──────────────────────────────────── */
+function saveAndUpdate() {
+  saveScores();
+  drawWheel();
+  updateLegend();
+  updateOverall();
+  renderSummary();
+  renderActionPlan();
+  document.getElementById('summary-section').style.display = 'block';
+  document.getElementById('action-plan').style.display = 'block';
+  document.getElementById('summary-section').scrollIntoView({ behavior: 'smooth' });
+  showToast('Wheel saved! Scroll down for your action plan.', 'success');
+}
+
+/* ── Summary cards ───────────────────────────────────────── */
+function renderSummary() {
+  const sorted = [...SPOKES].sort((a, b) => (scores[b.key] || 0) - (scores[a.key] || 0));
+  const highest = sorted[0], lowest = sorted[sorted.length - 1];
+  const gap = (scores[highest.key] || 0) - (scores[lowest.key] || 0);
+
+  document.getElementById('sum-highest-score').textContent = scores[highest.key];
+  document.getElementById('sum-highest-name').textContent = highest.emoji + ' ' + highest.label;
+  document.getElementById('sum-lowest-score').textContent = scores[lowest.key];
+  document.getElementById('sum-lowest-name').textContent = lowest.emoji + ' ' + lowest.label;
+  document.getElementById('sum-gap').textContent = gap;
+}
+
+/* ── Action plan ─────────────────────────────────────────── */
+function renderActionPlan() {
+  const sorted = [...SPOKES].sort((a, b) => (scores[a.key] || 0) - (scores[b.key] || 0));
+  const focusAreas = sorted.slice(0, 4); // bottom 4
+
+  const list = document.getElementById('focus-areas-list');
+  list.innerHTML = focusAreas.map(s => {
+    const score = scores[s.key] || 0;
+    const link = COURSE_LINKS[s.key];
+    const pct = score * 10;
+    let priority = '';
+    if (score <= 3) priority = '🔴 Priority';
+    else if (score <= 5) priority = '🟡 Focus area';
+    else priority = '🟢 Growth area';
+
+    return `
+      <div class="focus-card" style="border-left-color:${s.color}">
+        <div class="focus-card-icon">${s.emoji}</div>
+        <div class="focus-card-body">
+          <div class="focus-card-title">${s.label} <span class="tag" style="margin-left:8px;font-size:0.75rem">${priority}</span></div>
+          <div class="focus-card-desc">${s.desc}</div>
+          <div class="focus-score-bar">
+            <div class="focus-score-label">
+              <span>Current score: <strong>${score}/10</strong></span>
+              <span style="color:${s.color}">${link.module}</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:${pct}%;background:${s.color}"></div>
+            </div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--gray-500);margin-top:6px;">💡 ${link.hint}</div>
+        </div>
+        <a href="${link.url}" class="btn btn-sm btn-navy focus-card-link">Start →</a>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+function resetScores() {
+  if (!confirm('Reset all scores to 5?')) return;
+  SPOKES.forEach(s => scores[s.key] = 5);
+  renderSliders();
+  drawWheel();
+  updateLegend();
+  updateOverall();
+  document.getElementById('summary-section').style.display = 'none';
+  document.getElementById('action-plan').style.display = 'none';
+}
+
+/* ── Copy scores ─────────────────────────────────────────── */
+function copyScores() {
+  const text = SPOKES.map(s => `${s.emoji} ${s.label}: ${scores[s.key]}/10`).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('Scores copied!', 'success'));
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = type; }, 3000);
+}
+
+/* ── Init ────────────────────────────────────────────────── */
+function init() {
+  loadScores();
+  drawWheel();
+  updateLegend();
+  renderSliders();
+  updateOverall();
+
+  // If we have saved scores, show plan immediately
+  if (localStorage.getItem(STORAGE_KEY)) {
+    renderSummary();
+    renderActionPlan();
+    document.getElementById('summary-section').style.display = 'block';
+    document.getElementById('action-plan').style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
