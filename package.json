@@ -1,0 +1,8 @@
+{
+  "name": "financial-training-course",
+  "version": "1.0.0",
+  "description": "Financial training course builder and LMS",
+  "dependencies": {
+    "@netlify/blobs": "^8.0.0"
+  }
+}

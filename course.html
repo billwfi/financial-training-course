@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course — Financial Fundamentals</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <style>
+    body { background: var(--gray-50); }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .app-header {
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .app-header a { color: var(--gray-300); font-size: 0.85rem; }
+    .app-header a:hover { color: var(--white); }
+    .header-title { font-size: 1rem; font-weight: 700; color: var(--white); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-progress { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+    .header-progress-label { font-size: 0.8rem; color: var(--gray-300); white-space: nowrap; }
+    .header-progress .progress-bar-wrap { flex: 1; }
+
+    .lms-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── Sidebar ─────────────────────────────────────── */
+    .sidebar {
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      overflow-y: auto;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+    }
+    .sidebar-inner { padding: 16px 0; }
+    .sidebar-heading {
+      padding: 8px 20px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+
+    /* ── Main content ────────────────────────────────── */
+    .main-content {
+      padding: 32px;
+      max-width: 860px;
+    }
+
+    /* ── No-lesson state ─────────────────────────────── */
+    .no-lesson {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 40px;
+      text-align: center;
+      color: var(--gray-500);
+    }
+    .no-lesson-icon { font-size: 3rem; margin-bottom: 16px; }
+
+    /* ── Lesson view ─────────────────────────────────── */
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--gray-500); margin-bottom: 12px; }
+    .lesson-title { font-size: 1.6rem; margin-bottom: 6px; }
+    .lesson-desc { color: var(--gray-500); margin-bottom: 24px; }
+
+    /* Video */
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      background: var(--gray-900);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    .video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      gap: 12px;
+    }
+    .video-placeholder-icon { font-size: 3rem; }
+
+    /* Tabs */
+    .lesson-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px; }
+    .lesson-tab {
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all var(--transition);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .lesson-tab:hover { color: var(--navy); background: var(--gray-50); }
+    .lesson-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Notes */
+    .notes-body {
+      line-height: 1.8;
+      color: var(--gray-700);
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+    .notes-body strong { color: var(--navy); }
+
+    /* Resources */
+    .resources-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+    }
+    .resource-item:hover { border-color: var(--gold); box-shadow: var(--shadow); }
+    .resource-icon { font-size: 1.5rem; }
+    .resource-name { font-weight: 600; font-size: 0.9rem; }
+    .resource-link { margin-left: auto; }
+
+    /* Quiz */
+    .quiz-wrap { display: flex; flex-direction: column; gap: 28px; }
+    .quiz-question-card {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+    .quiz-q-text { font-weight: 600; margin-bottom: 16px; font-size: 0.95rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.9rem;
+      background: var(--white);
+      text-align: left;
+      width: 100%;
+    }
+    .quiz-option:hover:not(.disabled) { border-color: var(--navy); background: var(--gray-50); }
+    .quiz-option.selected { border-color: var(--navy); background: var(--gray-100); }
+    .quiz-option.correct { border-color: var(--green); background: var(--green-pale); color: var(--green); }
+    .quiz-option.wrong { border-color: var(--red); background: var(--red-pale); color: var(--red); }
+    .quiz-option.disabled { cursor: default; }
+    .quiz-option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .quiz-option.correct .quiz-option-letter { background: var(--green); color: var(--white); }
+    .quiz-option.wrong .quiz-option-letter { background: var(--red); color: var(--white); }
+    .quiz-explanation {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: var(--gray-50);
+      border-left: 4px solid var(--gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      display: none;
+    }
+    .quiz-score {
+      background: var(--gold-pale);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      text-align: center;
+      display: none;
+    }
+    .quiz-score .score-big { font-size: 2rem; font-weight: 800; color: var(--navy); }
+
+    /* Complete button area */
+    .complete-area {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .complete-btn.done {
+      background: var(--green-pale);
+      border: 2px solid var(--green);
+      color: var(--green);
+      cursor: default;
+    }
+    .nav-lesson-btns { display: flex; gap: 10px; }
+
+    /* Mobile */
+    .sidebar-toggle {
+      display: none;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .lms-layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: -320px;
+        top: 56px;
+        width: 300px;
+        height: calc(100vh - 56px);
+        z-index: 300;
+        transition: left 0.3s ease;
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar.open { left: 0; }
+      .sidebar-toggle { display: block; }
+      .main-content { padding: 20px 16px; }
+      .header-progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html">← Home</a>
+  <div class="header-title" id="header-title">Financial Fundamentals</div>
+  <div class="header-progress">
+    <span class="header-progress-label" id="progress-label">0%</span>
+    <div class="progress-bar-wrap" style="width:100px"><div class="progress-bar-fill" id="header-bar" style="width:0%"></div></div>
+  </div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
+</header>
+
+<div class="lms-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner" id="sidebar-inner">
+      <div class="loading-overlay"><div class="spinner"></div></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="main-content">
+    <div class="no-lesson">
+      <div class="no-lesson-icon">📖</div>
+      <h3>Loading your course…</h3>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let course = null;
+let progress = {};
+let currentModuleId = null;
+let currentLessonId = null;
+let quizAnswers = {};
+
+async function init() {
+  progress = JSON.parse(localStorage.getItem('course-progress') || '{}');
+  try {
+    const res = await fetch('/api/course');
+    course = await res.json();
+    document.getElementById('header-title').textContent = course.title;
+    document.title = course.title;
+    renderSidebar();
+    updateProgress();
+
+    // Auto-open first incomplete lesson
+    for (const mod of course.modules) {
+      for (const les of mod.lessons) {
+        if (!progress[les.id]) {
+          showLesson(mod.id, les.id);
+          return;
+        }
+      }
+    }
+    // All done or no lessons
+    if (course.modules.length && course.modules[0].lessons.length) {
+      showLesson(course.modules[0].id, course.modules[0].lessons[0].id);
+    } else {
+      document.getElementById('main-content').innerHTML = `
+        <div class="no-lesson">
+          <div class="no-lesson-icon">🏗️</div>
+          <h3>No content yet</h3>
+          <p style="color:var(--gray-500);margin-top:8px;">Add modules and lessons in the <a href="builder/index.html">Course Builder</a>.</p>
+        </div>`;
+    }
+  } catch (err) {
+    document.getElementById('main-content').innerHTML = `<p style="color:var(--red);padding:40px;">Failed to load course. Is Netlify Dev running?</p>`;
+  }
+}
+
+function renderSidebar() {
+  const inner = document.getElementById('sidebar-inner');
+  if (!course.modules.length) {
+    inner.innerHTML = '<p style="padding:20px;color:var(--gray-500);font-size:0.88rem;">No modules yet.</p>';
+    return;
+  }
+  inner.innerHTML = '<div class="sidebar-heading">Course Outline</div>' +
+    course.modules.map(mod => {
+      const total = mod.lessons.length;
+      const done = mod.lessons.filter(l => progress[l.id]).length;
+      const isOpen = mod.id === currentModuleId;
+      return `
+        <div class="module-item ${isOpen ? 'open active' : ''}" id="sidebar-mod-${mod.id}">
+          <div class="module-header" onclick="toggleModule('${mod.id}')">
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:var(--navy)">${esc(mod.title)}</div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px">${done}/${total} complete</div>
+            </div>
+            <span class="module-chevron">▾</span>
+          </div>
+          <div class="module-lessons">
+            ${mod.lessons.map(les => `
+              <div class="lesson-item ${les.id === currentLessonId ? 'active' : ''}" id="sidebar-les-${les.id}" onclick="showLesson('${mod.id}','${les.id}')">
+                <div class="lesson-check ${progress[les.id] ? 'done' : ''}">
+                  ${progress[les.id] ? '✓' : ''}
+                </div>
+                <span>${esc(les.title)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleModule(modId) {
+  const el = document.getElementById('sidebar-mod-' + modId);
+  el.classList.toggle('open');
+}
+
+function showLesson(modId, lesId) {
+  const mod = course.modules.find(m => m.id === modId);
+  const les = mod.lessons.find(l => l.id === lesId);
+  currentModuleId = modId;
+  currentLessonId = lesId;
+  quizAnswers = JSON.parse(localStorage.getItem('quiz-' + lesId) || '{}');
+
+  // Update sidebar
+  document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+  const lesEl = document.getElementById('sidebar-les-' + lesId);
+  if (lesEl) {
+    lesEl.classList.add('active');
+    document.querySelectorAll('.module-item').forEach(m => m.classList.remove('open', 'active'));
+    const modEl = document.getElementById('sidebar-mod-' + modId);
+    if (modEl) modEl.classList.add('open', 'active');
+  }
+
+  // Nav buttons
+  const allLessons = course.modules.flatMap(m => m.lessons.map(l => ({ modId: m.id, lesId: l.id })));
+  const idx = allLessons.findIndex(x => x.lesId === lesId);
+  const prev = idx > 0 ? allLessons[idx - 1] : null;
+  const next = idx < allLessons.length - 1 ? allLessons[idx + 1] : null;
+
+  const isDone = !!progress[lesId];
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="lesson-breadcrumb">${esc(course.title)} / ${esc(mod.title)}</div>
+    <h1 class="lesson-title">${esc(les.title)}</h1>
+    <p class="lesson-desc">${esc(les.description)}</p>
+
+    ${les.youtubeId ? `
+      <div class="video-wrap">
+        <iframe src="https://www.youtube.com/embed/${esc(les.youtubeId)}?rel=0" allowfullscreen title="${esc(les.title)}"></iframe>
+      </div>` : les.notes ? '' : `
+      <div class="video-wrap">
+        <div class="video-placeholder">
+          <div class="video-placeholder-icon">🎬</div>
+          <p>No video added yet</p>
+        </div>
+      </div>`
+    }
+
+    <div class="lesson-tabs">
+      ${les.notes ? '<div class="lesson-tab active" onclick="switchTab(this,\'notes\')">📝 Notes</div>' : ''}
+      ${les.resources && les.resources.length ? '<div class="lesson-tab ' + (les.notes ? '' : 'active') + '" onclick="switchTab(this,\'resources\')">📎 Resources</div>' : ''}
+      ${les.quiz && les.quiz.questions && les.quiz.questions.length ? '<div class="lesson-tab ' + (!les.notes && !(les.resources && les.resources.length) ? 'active' : '') + '" onclick="switchTab(this,\'quiz\')">🧠 Quiz</div>' : ''}
+    </div>
+
+    ${les.notes ? `<div class="tab-panel active" id="tab-notes"><div class="notes-body">${renderNotes(les.notes)}</div></div>` : ''}
+
+    ${les.resources && les.resources.length ? `
+      <div class="tab-panel ${!les.notes ? 'active' : ''}" id="tab-resources">
+        <div class="resources-list">
+          ${les.resources.map(r => `
+            <div class="resource-item">
+              <span class="resource-icon">📄</span>
+              <span class="resource-name">${esc(r.title)}</span>
+              ${r.url ? `<a href="${esc(r.url)}" target="_blank" class="btn btn-sm btn-outline resource-link">Download</a>` : '<span class="tag resource-link">Coming soon</span>'}
+            </div>
+          `).join('')}
+        </div>
+      </div>` : ''}
+
+    ${les.quiz && les.quiz.questions && les.quiz.questions.length ? `
+      <div class="tab-panel ${!les.notes && !(les.resources && les.resources.length) ? 'active' : ''}" id="tab-quiz">
+        <div class="quiz-wrap" id="quiz-wrap">
+          ${renderQuiz(les)}
+        </div>
+      </div>` : ''}
+
+    <div class="complete-area">
+      <button class="btn ${isDone ? 'complete-btn done' : 'btn-primary'}" id="complete-btn" onclick="markComplete('${lesId}')" ${isDone ? 'disabled' : ''}>
+        ${isDone ? '✓ Lesson Complete' : 'Mark as Complete'}
+      </button>
+      <div class="nav-lesson-btns">
+        ${prev ? `<button class="btn btn-ghost btn-sm" onclick="showLesson('${prev.modId}','${prev.lesId}')">← Previous</button>` : ''}
+        ${next ? `<button class="btn btn-navy btn-sm" onclick="showLesson('${next.modId}','${next.lesId}')">Next →</button>` : ''}
+      </div>
+    </div>
+  `;
+
+  // Restore quiz state if already answered
+  if (quizAnswers && Object.keys(quizAnswers).length > 0 && les.quiz && les.quiz.questions) {
+    les.quiz.questions.forEach(q => {
+      if (quizAnswers[q.id] !== undefined) {
+        renderQuizAnswer(q, quizAnswers[q.id]);
+      }
+    });
+    updateQuizScore(les);
+  }
+
+  // Ensure first tab is active if none set
+  const tabs = document.querySelectorAll('.lesson-tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  if (tabs.length > 0 && !document.querySelector('.lesson-tab.active')) {
+    tabs[0].classList.add('active');
+    panels[0].classList.add('active');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function switchTab(tabEl, tabId) {
+  document.querySelectorAll('.lesson-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  tabEl.classList.add('active');
+  const panel = document.getElementById('tab-' + tabId);
+  if (panel) panel.classList.add('active');
+}
+
+function renderNotes(text) {
+  // Simple markdown-lite: bold, line breaks
+  return esc(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function renderQuiz(les) {
+  if (!les.quiz || !les.quiz.questions || !les.quiz.questions.length) return '';
+  return les.quiz.questions.map((q, qi) => `
+    <div class="quiz-question-card" id="qq-${q.id}">
+      <div class="quiz-q-text">Q${qi + 1}: ${esc(q.question)}</div>
+      <div class="quiz-options" id="qopts-${q.id}">
+        ${q.options.map((opt, oi) => `
+          <button class="quiz-option" onclick="selectOption('${q.id}', ${oi})" data-idx="${oi}">
+            <span class="quiz-option-letter">${'ABCD'[oi]}</span>
+            ${esc(opt)}
+          </button>
+        `).join('')}
+      </div>
+      ${q.explanation ? `<div class="quiz-explanation" id="qexp-${q.id}">${esc(q.explanation)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectOption(qId, selectedIdx) {
+  const les = course.modules.flatMap(m => m.lessons).find(l => l.id === currentLessonId);
+  const q = les.quiz.questions.find(x => x.id === qId);
+  quizAnswers[qId] = selectedIdx;
+  localStorage.setItem('quiz-' + currentLessonId, JSON.stringify(quizAnswers));
+  renderQuizAnswer(q, selectedIdx);
+  updateQuizScore(les);
+}
+
+function renderQuizAnswer(q, selectedIdx) {
+  const optsEl = document.getElementById('qopts-' + q.id);
+  if (!optsEl) return;
+  optsEl.querySelectorAll('.quiz-option').forEach((btn, i) => {
+    btn.classList.remove('selected', 'correct', 'wrong');
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === selectedIdx && selectedIdx !== q.correct) btn.classList.add('wrong');
+  });
+  const expEl = document.getElementById('qexp-' + q.id);
+  if (expEl) expEl.style.display = 'block';
+}
+
+function updateQuizScore(les) {
+  if (!les.quiz || !les.quiz.questions) return;
+  const total = les.quiz.questions.length;
+  const answered = Object.keys(quizAnswers).length;
+  if (answered < total) return;
+  const correct = les.quiz.questions.filter(q => quizAnswers[q.id] === q.correct).length;
+  const pct = Math.round((correct / total) * 100);
+
+  let scoreEl = document.getElementById('quiz-score-summary');
+  if (!scoreEl) {
+    scoreEl = document.createElement('div');
+    scoreEl.id = 'quiz-score-summary';
+    scoreEl.className = 'quiz-score';
+    document.getElementById('quiz-wrap').appendChild(scoreEl);
+  }
+  scoreEl.style.display = 'block';
+  scoreEl.innerHTML = `
+    <div class="score-big">${pct}%</div>
+    <p style="color:var(--gray-700);margin-top:4px;">${correct} of ${total} correct</p>
+    ${pct >= 80 ? '<p style="color:var(--green);font-weight:600;margin-top:8px;">Great work! 🎉</p>' : '<p style="color:var(--gray-500);margin-top:8px;">Review the explanations above and try again on your next visit.</p>'}
+  `;
+}
+
+function markComplete(lesId) {
+  progress[lesId] = true;
+  localStorage.setItem('course-progress', JSON.stringify(progress));
+  const btn = document.getElementById('complete-btn');
+  if (btn) {
+    btn.textContent = '✓ Lesson Complete';
+    btn.className = 'btn complete-btn done';
+    btn.disabled = true;
+  }
+  const check = document.getElementById('sidebar-les-' + lesId)?.querySelector('.lesson-check');
+  if (check) { check.classList.add('done'); check.textContent = '✓'; }
+  updateProgress();
+  showToast('Lesson marked complete!', 'success');
+
+  // Auto-advance to next lesson after short delay
+  const allLessons = course.modules.flatMap(m => m.lessons.map(l => ({ modId: m.id, lesId: l.id })));
+  const idx = allLessons.findIndex(x => x.lesId === lesId);
+  const next = idx < allLessons.length - 1 ? allLessons[idx + 1] : null;
+  if (next) setTimeout(() => showLesson(next.modId, next.lesId), 800);
+}
+
+function updateProgress() {
+  const allLessons = course.modules.flatMap(m => m.lessons);
+  const total = allLessons.length;
+  const done = allLessons.filter(l => progress[l.id]).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-label').textContent = pct + '%';
+  document.getElementById('header-bar').style.width = pct + '%';
+  renderSidebar(); // refresh checks
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = type; }, 2800);
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>

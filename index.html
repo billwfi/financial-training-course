@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Fundamentals — Course</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <style>
+    /* ── Landing-specific styles ─────────────────────── */
+    body { background: var(--white); }
+
+    .nav {
+      background: var(--navy);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .nav-brand { color: var(--white); font-size: 1.1rem; font-weight: 700; }
+    .nav-brand span { color: var(--gold); }
+    .nav-links { display: flex; gap: 16px; align-items: center; }
+    .nav-links a { color: var(--gray-300); font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--white); }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, var(--navy-light) 100%);
+      color: var(--white);
+      padding: 80px 40px;
+      text-align: center;
+    }
+    .hero-eyebrow { color: var(--gold); font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(1.8rem, 4vw, 3rem); color: var(--white); margin-bottom: 20px; max-width: 700px; margin-left: auto; margin-right: auto; }
+    .hero p { font-size: 1.1rem; color: var(--gray-300); max-width: 600px; margin: 0 auto 32px; }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* Stats strip */
+    .stats-strip {
+      background: var(--gold);
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px 40px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; color: var(--navy); }
+    .stat-value { font-size: 1.5rem; font-weight: 800; }
+    .stat-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* About section */
+    .section { padding: 64px 40px; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-size: 1.6rem; margin-bottom: 8px; }
+    .section-sub { color: var(--gray-500); margin-bottom: 40px; }
+
+    /* Wheel of Life preview */
+    .wheel-section {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: var(--white);
+      padding: 64px 40px;
+    }
+    .wheel-section .section-title { color: var(--white); text-align: center; }
+    .wheel-section .section-sub { color: var(--gray-300); text-align: center; }
+    .wheel-preview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 800px;
+      margin: 40px auto 0;
+    }
+    .wheel-preview-spoke {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius);
+      padding: 20px 12px;
+      text-align: center;
+      transition: all var(--transition);
+    }
+    .wheel-preview-spoke:hover { background: rgba(201,162,39,0.2); border-color: var(--gold); }
+    .spoke-emoji { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+    .spoke-name { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+
+    /* Modules list */
+    .modules-grid { display: flex; flex-direction: column; gap: 16px; }
+    .module-card {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: all var(--transition);
+    }
+    .module-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+    .module-num {
+      width: 44px;
+      height: 44px;
+      background: var(--navy);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .module-card h3 { font-size: 1.05rem; margin-bottom: 4px; }
+    .module-card p { color: var(--gray-500); font-size: 0.9rem; }
+    .module-meta { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+
+    /* Instructor */
+    .instructor-card {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .instructor-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .instructor-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .instructor-info h3 { font-size: 1.1rem; margin-bottom: 2px; }
+    .instructor-title { color: var(--gold); font-weight: 600; font-size: 0.9rem; margin-bottom: 12px; }
+    .instructor-bio { color: var(--gray-700); font-size: 0.95rem; }
+
+    /* CTA strip */
+    .cta-strip {
+      background: var(--navy);
+      text-align: center;
+      padding: 64px 40px;
+      color: var(--white);
+    }
+    .cta-strip h2 { color: var(--white); font-size: 1.8rem; margin-bottom: 12px; }
+    .cta-strip p { color: var(--gray-300); margin-bottom: 28px; }
+
+    footer {
+      background: var(--navy-dark);
+      color: var(--gray-500);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--gray-300); }
+
+    @media (max-width: 768px) {
+      .nav { padding: 14px 20px; }
+      .hero, .section { padding: 48px 20px; }
+      .wheel-preview { grid-template-columns: repeat(2, 1fr); }
+      .instructor-card { flex-direction: column; }
+      .module-card { flex-direction: column; }
+      .stats-strip { gap: 20px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">Financial <span>Fundamentals</span></div>
+  <div class="nav-links">
+    <a href="course.html" class="btn btn-primary btn-sm" id="start-btn">Start Learning</a>
+    <a href="builder/index.html" style="color:var(--gray-500);font-size:0.8rem;">Builder</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow">Financial Training Course</div>
+  <h1 id="hero-title">Financial Fundamentals: Build a Life You Love</h1>
+  <p id="hero-desc">A comprehensive program that connects your financial plan to every area of your life using the Wheel of Life framework.</p>
+  <div class="hero-actions">
+    <a href="course.html" class="btn btn-primary">Start the Course</a>
+    <a href="#modules" class="btn btn-outline" style="border-color:rgba(255,255,255,0.4);color:#fff;">View Curriculum</a>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-value" id="stat-modules">—</div><div class="stat-label">Modules</div></div>
+  <div class="stat"><div class="stat-value" id="stat-lessons">—</div><div class="stat-label">Lessons</div></div>
+  <div class="stat"><div class="stat-value" id="stat-progress">0%</div><div class="stat-label">Your Progress</div></div>
+  <div class="stat"><div class="stat-value">Free</div><div class="stat-label">Access</div></div>
+</div>
+
+<!-- Wheel of Life Section -->
+<section class="wheel-section">
+  <div class="section-title">The Wheel of Life Framework</div>
+  <div class="section-sub">We don't just cover money — we cover the whole picture</div>
+  <div class="wheel-preview">
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">💼</span><div class="spoke-name">Career & Work</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">💰</span><div class="spoke-name">Money & Finances</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">🏃</span><div class="spoke-name">Health & Fitness</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">👨‍👩‍👧</span><div class="spoke-name">Family & Friends</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">❤️</span><div class="spoke-name">Romance & Partnership</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">📚</span><div class="spoke-name">Personal Growth</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">🎯</span><div class="spoke-name">Fun & Recreation</div></div>
+    <div class="wheel-preview-spoke"><span class="spoke-emoji">🏠</span><div class="spoke-name">Physical Environment</div></div>
+  </div>
+</section>
+
+<!-- Course Modules -->
+<section class="section" id="modules">
+  <div class="section-title">Course Curriculum</div>
+  <p class="section-sub">Everything you need to build financial confidence and life balance</p>
+  <div class="modules-grid" id="modules-list">
+    <div class="loading-overlay"><div class="spinner"></div><span>Loading curriculum…</span></div>
+  </div>
+</section>
+
+<!-- Instructor -->
+<section class="section" style="padding-top:0">
+  <div class="section-title">Your Instructor</div>
+  <p class="section-sub">Meet the person guiding you through this journey</p>
+  <div class="instructor-card">
+    <div class="instructor-avatar" id="instructor-avatar">👤</div>
+    <div class="instructor-info">
+      <h3 id="instructor-name">Loading…</h3>
+      <div class="instructor-title" id="instructor-title"></div>
+      <p class="instructor-bio" id="instructor-bio"></p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-strip">
+  <h2>Ready to Transform Your Financial Life?</h2>
+  <p>Join thousands of learners who have used this framework to create financial clarity.</p>
+  <a href="course.html" class="btn btn-primary" style="font-size:1.05rem;padding:14px 32px;">Start Learning Now — It's Free</a>
+</div>
+
+<footer>
+  <p>&copy; <span id="year"></span> Financial Fundamentals &mdash; <a href="builder/index.html">Course Builder</a></p>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  async function loadLanding() {
+    try {
+      const res = await fetch('/api/course');
+      const course = await res.json();
+
+      document.title = course.title + ' — Course';
+      document.getElementById('hero-title').textContent = course.title;
+      document.getElementById('hero-desc').textContent = course.description;
+
+      // Stats
+      const totalLessons = course.modules.reduce((a, m) => a + m.lessons.length, 0);
+      document.getElementById('stat-modules').textContent = course.modules.length;
+      document.getElementById('stat-lessons').textContent = totalLessons;
+
+      // Progress
+      const progress = JSON.parse(localStorage.getItem('course-progress') || '{}');
+      const completed = Object.values(progress).filter(Boolean).length;
+      const pct = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
+      document.getElementById('stat-progress').textContent = pct + '%';
+
+      // Instructor
+      const inst = course.instructor;
+      document.getElementById('instructor-name').textContent = inst.name;
+      document.getElementById('instructor-title').textContent = inst.title;
+      document.getElementById('instructor-bio').textContent = inst.bio;
+      if (inst.avatarUrl) {
+        document.getElementById('instructor-avatar').innerHTML = `<img src="${inst.avatarUrl}" alt="${inst.name}" />`;
+      }
+
+      // Modules
+      const list = document.getElementById('modules-list');
+      if (!course.modules.length) {
+        list.innerHTML = '<p style="color:var(--gray-500);text-align:center;padding:40px;">No modules yet. <a href="builder/index.html">Add content in the builder.</a></p>';
+        return;
+      }
+      list.innerHTML = course.modules.map((m, i) => `
+        <div class="module-card">
+          <div class="module-num">${i + 1}</div>
+          <div>
+            <h3>${esc(m.title)}</h3>
+            <p>${esc(m.description)}</p>
+            <div class="module-meta">
+              <span class="tag">${m.lessons.length} lesson${m.lessons.length !== 1 ? 's' : ''}</span>
+              ${m.lessons.some(l => progress[l.id]) ? `<span class="badge badge-green">In Progress</span>` : ''}
+              ${m.lessons.length > 0 && m.lessons.every(l => progress[l.id]) ? `<span class="badge badge-green">✓ Complete</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('modules-list').innerHTML = '<p style="color:var(--red);padding:20px;">Failed to load course. Make sure Netlify Dev is running.</p>';
+    }
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadLanding();
+</script>
+</body>
+</html>

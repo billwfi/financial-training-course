@@ -1,0 +1,209 @@
+{
+  "id": "financial-fundamentals",
+  "title": "Financial Fundamentals: Build a Life You Love",
+  "description": "A comprehensive financial training program that uses the Wheel of Life framework to help you create financial clarity, build lasting wealth habits, and align your money with what matters most.",
+  "instructor": {
+    "name": "Your Name",
+    "title": "Certified Financial Trainer",
+    "bio": "With over a decade of experience helping individuals and businesses achieve financial clarity, I combine proven financial principles with a whole-life approach to money management.",
+    "avatarUrl": ""
+  },
+  "thumbnail": "",
+  "previewVideoId": "",
+  "modules": [
+    {
+      "id": "mod-intro",
+      "title": "Welcome & The Wheel of Life",
+      "description": "Understand the full picture of your life before we dive into finances. The Wheel of Life helps you identify where you are now and where you want to go.",
+      "order": 1,
+      "lessons": [
+        {
+          "id": "les-intro-1",
+          "title": "Welcome to the Course",
+          "description": "An overview of what you'll learn and how to get the most out of this program.",
+          "youtubeId": "",
+          "notes": "Welcome! In this course you will:\n\n- Discover the Wheel of Life framework and how finances fit into every area\n- Build a clear picture of your current financial health\n- Create a personalized financial plan aligned with your life goals\n- Develop habits that sustain long-term financial wellbeing\n\nBefore we dive into numbers and strategies, we start with the big picture: your whole life.",
+          "resources": [
+            { "id": "res-1", "title": "Course Workbook (PDF)", "url": "" },
+            { "id": "res-2", "title": "Welcome Checklist", "url": "" }
+          ],
+          "quiz": {
+            "questions": []
+          }
+        },
+        {
+          "id": "les-intro-2",
+          "title": "What Is the Wheel of Life?",
+          "description": "Explore the eight areas of life and score where you are today.",
+          "youtubeId": "",
+          "notes": "The Wheel of Life is a powerful self-assessment tool that looks at eight key life areas:\n\n1. **Career & Work** – Are you fulfilled and growing professionally?\n2. **Money & Finances** – Do you feel secure and in control of your finances?\n3. **Health & Fitness** – Are you caring for your physical and mental wellbeing?\n4. **Family & Friends** – How strong and nourishing are your relationships?\n5. **Romance & Partnership** – Is your intimate relationship thriving?\n6. **Personal Growth** – Are you learning, evolving, and becoming your best self?\n7. **Fun & Recreation** – Do you have joy, hobbies, and rest in your life?\n8. **Physical Environment** – Does your home and workspace support your goals?\n\nRate each area from 1–10 and draw your wheel. The areas that are low often have a direct connection to your financial patterns.",
+          "resources": [
+            { "id": "res-3", "title": "Wheel of Life Worksheet (PDF)", "url": "" }
+          ],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-wol-1",
+                "question": "How many areas does the Wheel of Life assess?",
+                "type": "multiple-choice",
+                "options": ["4", "6", "8", "10"],
+                "correct": 2,
+                "explanation": "The Wheel of Life has 8 areas: Career, Money, Health, Family, Romance, Personal Growth, Fun, and Physical Environment."
+              },
+              {
+                "id": "q-wol-2",
+                "question": "What is the primary purpose of completing a Wheel of Life assessment?",
+                "type": "multiple-choice",
+                "options": [
+                  "To calculate your net worth",
+                  "To get a visual snapshot of life balance and identify low-scoring areas",
+                  "To compare yourself to others",
+                  "To create a budget"
+                ],
+                "correct": 1,
+                "explanation": "The Wheel of Life gives you a visual snapshot of how balanced your life feels across key areas, helping you identify where to focus your energy."
+              }
+            ]
+          }
+        },
+        {
+          "id": "les-intro-3",
+          "title": "How Money Affects Every Spoke of the Wheel",
+          "description": "Understand the deep connection between financial health and all eight life areas.",
+          "youtubeId": "",
+          "notes": "Money is not isolated — it touches every area of your Wheel of Life:\n\n- **Career:** Your income, benefits, and career choices are directly tied to financial decisions.\n- **Health:** Financial stress is one of the leading causes of poor health outcomes.\n- **Family:** Financial disagreements are a top cause of relationship strain.\n- **Personal Growth:** Learning costs money; financial freedom creates time to grow.\n- **Fun:** Experiences and hobbies require discretionary income.\n- **Environment:** Your home, neighbourhood, and workspace reflect and affect your finances.\n\nThis is why we start with the whole wheel — not just the money spoke.",
+          "resources": [],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-money-1",
+                "question": "Financial stress is primarily linked to which life area of the Wheel?",
+                "type": "multiple-choice",
+                "options": [
+                  "Fun & Recreation only",
+                  "Money & Finances only",
+                  "Multiple areas including Health, Family, and Career",
+                  "Physical Environment only"
+                ],
+                "correct": 2,
+                "explanation": "Financial stress affects many areas simultaneously — it impacts health, strains relationships, limits career options, and reduces quality of life across the board."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-foundation",
+      "title": "Financial Foundations",
+      "description": "Establish the core financial knowledge you need: income, expenses, assets, liabilities, and your net worth.",
+      "order": 2,
+      "lessons": [
+        {
+          "id": "les-found-1",
+          "title": "Your Financial Snapshot: Net Worth",
+          "description": "Learn to calculate your net worth — the starting point of every financial plan.",
+          "youtubeId": "",
+          "notes": "**Net Worth = Assets − Liabilities**\n\n**Assets** (what you own):\n- Cash and bank accounts\n- Investments (shares, super, managed funds)\n- Property\n- Vehicles and other valuables\n\n**Liabilities** (what you owe):\n- Mortgage\n- Car loans\n- Credit card balances\n- Personal loans\n- HECS/student debt\n\nYour net worth is not a judgement — it is a starting point. Many people begin with a negative net worth and build significant wealth over time.",
+          "resources": [
+            { "id": "res-4", "title": "Net Worth Calculator (Spreadsheet)", "url": "" }
+          ],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-nw-1",
+                "question": "If your assets total $350,000 and your liabilities total $180,000, what is your net worth?",
+                "type": "multiple-choice",
+                "options": ["$530,000", "$170,000", "$180,000", "$350,000"],
+                "correct": 1,
+                "explanation": "$350,000 − $180,000 = $170,000. Net worth is always assets minus liabilities."
+              }
+            ]
+          }
+        },
+        {
+          "id": "les-found-2",
+          "title": "Understanding Income & Cash Flow",
+          "description": "Map your income streams and understand the difference between cash flow and wealth.",
+          "youtubeId": "",
+          "notes": "**Types of Income:**\n\n- **Active Income:** Wages, salary, freelance fees — requires your time\n- **Passive Income:** Rent, dividends, royalties — earns while you sleep\n- **Portfolio Income:** Capital gains from selling investments\n\n**Cash Flow = Money In − Money Out**\n\nPositive cash flow means you have money left over each period. This surplus is what you use to build wealth.\n\nKey principle: **It is not how much you earn, it is how much you keep and grow.**",
+          "resources": [
+            { "id": "res-5", "title": "Cash Flow Tracker (PDF)", "url": "" }
+          ],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-cf-1",
+                "question": "Which type of income earns money without requiring your active time?",
+                "type": "multiple-choice",
+                "options": ["Active income", "Passive income", "Earned income", "Gross income"],
+                "correct": 1,
+                "explanation": "Passive income (rent, dividends, royalties) generates money without requiring your direct time and effort."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-budgeting",
+      "title": "Budgeting & Spending Plans",
+      "description": "Create a spending plan that funds your whole Wheel of Life — not just bills.",
+      "order": 3,
+      "lessons": [
+        {
+          "id": "les-budget-1",
+          "title": "The 50/30/20 Rule",
+          "description": "A simple framework for allocating your after-tax income.",
+          "youtubeId": "",
+          "notes": "The 50/30/20 rule divides your after-tax income into three buckets:\n\n- **50% Needs** – Housing, utilities, groceries, transport, insurance\n- **30% Wants** – Dining out, entertainment, hobbies, subscriptions\n- **20% Savings & Debt Repayment** – Emergency fund, investments, extra loan payments\n\nThis is a starting framework. Your actual percentages will depend on your income, location, and Wheel of Life priorities.",
+          "resources": [
+            { "id": "res-6", "title": "50/30/20 Budget Template", "url": "" }
+          ],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-5030-1",
+                "question": "In the 50/30/20 rule, what percentage is allocated to savings and debt repayment?",
+                "type": "multiple-choice",
+                "options": ["50%", "30%", "20%", "10%"],
+                "correct": 2,
+                "explanation": "The 20% bucket covers savings, investments, and extra debt repayments — the wealth-building portion of your budget."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-goals",
+      "title": "Goal Setting & Financial Planning",
+      "description": "Use your Wheel of Life scores to set meaningful financial goals and build a roadmap.",
+      "order": 4,
+      "lessons": [
+        {
+          "id": "les-goals-1",
+          "title": "Connecting Your Wheel Scores to Financial Goals",
+          "description": "Turn your Wheel of Life assessment into specific, funded goals.",
+          "youtubeId": "",
+          "notes": "Each low-scoring area of your Wheel of Life likely has a financial component:\n\n- **Health score 4/10?** → Budget for gym membership, better nutrition, or health appointments\n- **Fun score 3/10?** → Allocate discretionary spending for experiences and hobbies\n- **Career score 5/10?** → Invest in professional development or education\n- **Environment score 4/10?** → Plan for home improvements or relocation savings\n\n**SMART Financial Goals:**\n- **Specific:** Save $10,000 emergency fund\n- **Measurable:** $833/month for 12 months\n- **Achievable:** Fits within your cash flow\n- **Relevant:** Aligned with your Wheel of Life priorities\n- **Time-bound:** Completed by [date]",
+          "resources": [
+            { "id": "res-7", "title": "Goal Planning Worksheet", "url": "" }
+          ],
+          "quiz": {
+            "questions": [
+              {
+                "id": "q-goals-1",
+                "question": "What does the 'M' in SMART goals stand for?",
+                "type": "multiple-choice",
+                "options": ["Motivating", "Measurable", "Manageable", "Monetary"],
+                "correct": 1,
+                "explanation": "Measurable means your goal has a specific number or milestone so you can track progress."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
