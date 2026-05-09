@@ -233,6 +233,152 @@
     }
     .print-strip p { font-size: 0.9rem; color: var(--navy); font-weight: 600; }
 
+    /* ── Spoke content panel ────────────────────────────── */
+    .spoke-panel {
+      width: 100%;
+      margin-top: 16px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 2px solid transparent;
+      max-height: 0;
+      transition: max-height 0.4s ease, border-color 0.2s, opacity 0.3s;
+      opacity: 0;
+    }
+    .spoke-panel.open {
+      max-height: 900px;
+      opacity: 1;
+    }
+    .spoke-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      color: var(--white);
+    }
+    .spoke-panel-emoji { font-size: 2rem; }
+    .spoke-panel-title { font-size: 1.05rem; font-weight: 700; flex: 1; }
+    .spoke-panel-score {
+      font-size: 1.8rem;
+      font-weight: 800;
+      opacity: 0.95;
+    }
+    .spoke-panel-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .spoke-panel-close:hover { background: rgba(255,255,255,0.35); }
+
+    .spoke-panel-tabs {
+      display: flex;
+      background: rgba(0,0,0,0.12);
+    }
+    .spoke-panel-tab {
+      flex: 1;
+      padding: 10px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 3px solid transparent;
+      transition: all var(--transition);
+    }
+    .spoke-panel-tab:hover { color: rgba(255,255,255,0.9); }
+    .spoke-panel-tab.active { color: var(--white); border-bottom-color: var(--white); }
+
+    .spoke-panel-body { background: var(--white); padding: 22px; }
+    .spoke-tab-pane { display: none; }
+    .spoke-tab-pane.active { display: block; }
+
+    .spoke-intro { font-size: 0.95rem; color: var(--gray-700); line-height: 1.7; margin-bottom: 16px; }
+
+    .score-spectrum {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .spectrum-card {
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 0.85rem;
+    }
+    .spectrum-card.low { background: var(--red-pale); border: 1px solid #fca5a5; }
+    .spectrum-card.high { background: var(--green-pale); border: 1px solid #86efac; }
+    .spectrum-card h5 { font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
+    .spectrum-card.low h5 { color: var(--red); }
+    .spectrum-card.high h5 { color: #16a34a; }
+    .spectrum-card ul { padding-left: 16px; color: var(--gray-700); line-height: 1.8; }
+
+    .reflection-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .reflection-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      border-left: 3px solid var(--gray-300);
+    }
+    .reflection-list li span { font-size: 1rem; flex-shrink: 0; }
+
+    .finance-link-block {
+      background: var(--gold-pale);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .finance-link-block h5 { color: var(--navy); font-size: 0.88rem; margin-bottom: 6px; }
+    .finance-link-block p { font-size: 0.88rem; color: var(--gray-700); line-height: 1.7; }
+
+    .action-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .action-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      transition: border-color var(--transition);
+    }
+    .action-step:hover { border-color: currentColor; }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.78rem;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-size: 0.88rem; font-weight: 700; color: var(--navy); }
+    .step-detail { font-size: 0.8rem; color: var(--gray-500); margin-top: 2px; }
+
     @media print {
       .wol-header, .actions-row, .print-strip, .focus-card-link { display: none; }
       body { background: white; }
@@ -283,6 +429,28 @@
     </svg>
     <!-- Legend below wheel -->
     <div class="wheel-legend" id="wheel-legend"></div>
+
+    <!-- Spoke content panel (opens on legend click) -->
+    <div class="spoke-panel" id="spoke-panel">
+      <div class="spoke-panel-header" id="spoke-panel-header">
+        <span class="spoke-panel-emoji" id="sp-emoji"></span>
+        <span class="spoke-panel-title" id="sp-title"></span>
+        <span class="spoke-panel-score" id="sp-score"></span>
+        <button class="spoke-panel-close" onclick="closeSpokenPanel()">✕</button>
+      </div>
+      <div class="spoke-panel-tabs" id="spoke-panel-tabs">
+        <div class="spoke-panel-tab active" onclick="switchSpokeTab(this,'overview')">Overview</div>
+        <div class="spoke-panel-tab" onclick="switchSpokeTab(this,'reflect')">Reflect</div>
+        <div class="spoke-panel-tab" onclick="switchSpokeTab(this,'finance')">Finance Link</div>
+        <div class="spoke-panel-tab" onclick="switchSpokeTab(this,'actions')">Action Steps</div>
+      </div>
+      <div class="spoke-panel-body">
+        <div class="spoke-tab-pane active" id="sp-tab-overview"></div>
+        <div class="spoke-tab-pane" id="sp-tab-reflect"></div>
+        <div class="spoke-tab-pane" id="sp-tab-finance"></div>
+        <div class="spoke-tab-pane" id="sp-tab-actions"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Right: Sliders -->
@@ -379,6 +547,169 @@ const COURSE_LINKS = {
   growth:      { module: 'Goal Setting & Financial Planning', url: 'course.html', hint: 'Invest in education and personal development' },
   fun:         { module: 'Budgeting & Spending Plans',        url: 'course.html', hint: 'Build discretionary spending into your plan' },
   environment: { module: 'Financial Foundations',             url: 'course.html', hint: 'Plan for your home and lifestyle goals' },
+};
+
+const SPOKE_CONTENT = {
+  career: {
+    intro: 'Your career is not just how you earn money — it is where you spend a third of your waking life. When work feels meaningful and rewarding, it energises every other area of the wheel. When it drains you, everything suffers.',
+    lowSigns: ['Dreading Monday mornings', 'Feeling invisible or undervalued', 'No clear path forward', 'Doing work that contradicts your values'],
+    highSigns: ['Excited by your work and challenges', 'Clear goals and a growth path', 'Feeling valued and recognised', 'Your work aligns with your purpose'],
+    questions: [
+      { icon: '🧭', q: 'Does the work I do each day feel meaningful and purposeful?' },
+      { icon: '📈', q: 'Am I growing professionally — learning new skills and taking on new challenges?' },
+      { icon: '🤝', q: 'Do I feel respected and valued by the people I work with?' },
+      { icon: '🔮', q: 'Do I have a clear vision for where my career is headed in the next 3 years?' },
+      { icon: '⚖️', q: 'Does my career allow for the life balance I want?' },
+    ],
+    financeHeading: 'Career is your primary wealth engine',
+    financeBody: 'Your career determines your income ceiling. A single salary negotiation, promotion, or strategic career move can add $5,000–$30,000+ to your annual income — more than years of expense-cutting. Investing time in your career development is one of the highest-return financial decisions you can make.',
+    steps: [
+      { title: 'Define your 3 career values', detail: 'Write down the 3 things work must give you (e.g. autonomy, impact, growth). Use these to evaluate every career decision.' },
+      { title: 'Book a salary review conversation', detail: 'Research market rates for your role and request a performance conversation within the next 30 days.' },
+      { title: 'Create a 90-day skill development plan', detail: 'Identify one skill gap holding you back and commit to closing it this quarter via a course, mentor, or project.' },
+      { title: 'Map your next career move', detail: 'Write down the role you want in 3 years and the specific experience and relationships you need to get there.' },
+    ],
+  },
+  money: {
+    intro: 'Money is the hub of the Wheel of Life — it connects to and influences every other spoke. Financial stress is one of the most pervasive sources of anxiety in modern life. Financial clarity, on the other hand, creates freedom and choice across every area.',
+    lowSigns: ['Living paycheck to paycheck', 'Avoiding bank statements or credit card bills', 'Debt causing persistent stress', 'No savings buffer for emergencies'],
+    highSigns: ['Emergency fund of 3–6 months of expenses in place', 'Investing consistently every month', 'Clear picture of income, expenses, and net worth', 'Making financial decisions from a place of choice, not fear'],
+    questions: [
+      { icon: '📊', q: 'Do I know my exact net worth — what I own minus what I owe?' },
+      { icon: '💸', q: 'Am I saving and investing consistently, even a small amount each month?' },
+      { icon: '🧾', q: 'Does my spending reflect my values and what actually matters to me?' },
+      { icon: '🏦', q: 'Do I have an emergency fund that would cover at least 3 months of living costs?' },
+      { icon: '🎯', q: 'Do I have clear, written financial goals with a timeline?' },
+    ],
+    financeHeading: 'Money is the spoke that touches all others',
+    financeBody: 'Raising your money score lifts every other area of the wheel. Financial security reduces health-damaging stress, reduces relationship conflict, funds personal growth, enables career choices, and makes your physical environment comfortable. This is why Financial Foundations is where we start in the course.',
+    steps: [
+      { title: 'Calculate your net worth today', detail: 'List every asset and every liability. The number does not matter — knowing the number is what matters.' },
+      { title: 'Automate a savings transfer', detail: 'Set up an automatic transfer on payday — even $50/week builds to $2,600 in a year. Start the habit before optimising the amount.' },
+      { title: 'Track your spending for 30 days', detail: 'Use a simple spreadsheet or app to capture every dollar out. Awareness alone typically reduces spending by 10–15%.' },
+      { title: 'Write 3 financial goals with dates', detail: 'One short-term (under 12 months), one medium-term (1–3 years), one long-term (5+ years). Post them somewhere visible.' },
+    ],
+  },
+  health: {
+    intro: 'Your physical and mental health is your most valuable long-term asset. Without it, none of the other areas of the wheel can function at full capacity. Health is not just the absence of illness — it is having the energy, clarity, and vitality to live fully.',
+    lowSigns: ['Persistent fatigue and low energy', 'Skipping exercise regularly or not moving at all', 'Poor sleep — less than 6 hours or poor quality', 'Using food, alcohol, or screens to manage stress'],
+    highSigns: ['Consistent daily energy throughout the day', 'Regular exercise you actually enjoy', '7–9 hours of quality sleep most nights', 'Stress managed through healthy habits'],
+    questions: [
+      { icon: '⚡', q: 'Do I have consistent energy throughout the day without relying on caffeine or sugar?' },
+      { icon: '🏋️', q: 'Am I moving my body at least 3–4 times per week in a way I enjoy?' },
+      { icon: '😴', q: 'Am I getting 7–9 hours of quality sleep most nights?' },
+      { icon: '🧠', q: 'Do I have effective strategies for managing stress and protecting my mental health?' },
+      { icon: '🥗', q: 'Am I nourishing my body with food that supports energy and long-term health?' },
+    ],
+    financeHeading: 'Health is a financial investment, not a cost',
+    financeBody: 'Poor health is expensive. Medical bills, sick days, reduced productivity, and poor decision-making all carry a financial cost. Research consistently shows that people with higher physical and mental health earn more, make better financial decisions, and have lower lifetime healthcare costs. Investing in a gym membership, quality food, or mental health support is high-return spending.',
+    steps: [
+      { title: 'Budget for one health investment', detail: 'A gym membership, fitness app, meal prep service, or therapist session. Make health spending a planned line item, not a guilt expense.' },
+      { title: 'Protect your sleep', detail: 'Set a consistent bedtime alarm. 7 hours of good sleep improves decision-making, emotional regulation, and productivity more than most supplements.' },
+      { title: 'Schedule 3 movement sessions this week', detail: 'Put them in your calendar like meetings. 30 minutes of walking counts. Consistency matters more than intensity.' },
+      { title: 'Do a stress audit', detail: 'List your top 3 stress sources. For each, identify one action — remove it, reduce it, or build a buffer against it.' },
+    ],
+  },
+  family: {
+    intro: 'Humans are wired for connection. The quality of your relationships with family and friends is one of the strongest predictors of happiness, health, and longevity. This area often suffers silently — we assume the people closest to us will always be there, and we deprioritise them without realising.',
+    lowSigns: ['Feeling isolated or lonely even around people', 'Relationships that feel transactional rather than nourishing', 'Consistent conflict or tension with family members', 'Friendships that have faded from neglect'],
+    highSigns: ['Feeling genuinely supported and loved', 'Regular meaningful time with people who matter', 'Relationships built on honesty, trust, and mutual care', 'A strong support network you could call in a crisis'],
+    questions: [
+      { icon: '❤️', q: 'Do I feel genuinely loved and supported by the people closest to me?' },
+      { icon: '🕰️', q: 'Am I giving quality, present time to the relationships that matter most?' },
+      { icon: '🤗', q: 'Do I have at least one person I could call in a crisis at any hour?' },
+      { icon: '🔄', q: 'Are my relationships reciprocal — do I both give and receive support?' },
+      { icon: '💬', q: 'Am I honest and open in my key relationships, or do I suppress important things?' },
+    ],
+    financeHeading: 'Relationships have a financial cost and return',
+    financeBody: 'Relationship breakdown is one of the most financially devastating life events — divorce alone can set back financial goals by a decade. Strong relationships, on the other hand, build career networks, provide free emotional support, and create opportunities. Investing time and money in your relationships is one of the wisest financial decisions you can make.',
+    steps: [
+      { title: 'Schedule one relationship investment per week', detail: 'A dinner, coffee, or phone call with someone important. Put it in your calendar before the week fills up.' },
+      { title: 'Create a "people budget"', detail: 'Deliberately allocate money for experiences with the people you love — meals, trips, gifts. Relationship investment is legitimate spending.' },
+      { title: 'Practice phone-free presence', detail: 'In the next family or friend interaction, put your phone face-down and out of reach for the full time together.' },
+      { title: 'Repair one strained relationship', detail: 'Identify one relationship that needs attention. Send a message this week — reconnection is almost always worth the vulnerability.' },
+    ],
+  },
+  romance: {
+    intro: 'Your intimate relationship — or the absence of one — has a profound effect on your overall wellbeing. A thriving partnership creates a foundation of emotional security that supports every other area of the wheel. When this area is struggling, the weight of it is felt everywhere.',
+    lowSigns: ['Feeling disconnected or like roommates rather than partners', 'Avoiding important or difficult conversations', 'Different visions for the future causing silent tension', 'Intimacy — emotional or physical — has diminished significantly'],
+    highSigns: ['Feeling truly known, loved, and chosen by your partner', 'Open, honest communication about the things that matter', 'Shared vision and aligned goals for your life together', 'Regular connection, intimacy, and genuine enjoyment of each other'],
+    questions: [
+      { icon: '💞', q: 'Do I feel truly connected to and loved by my partner right now?' },
+      { icon: '🗣️', q: 'Can we talk openly about difficult things — money, fears, needs — without it becoming destructive?' },
+      { icon: '🔭', q: 'Do we have a shared vision for our life together that excites both of us?' },
+      { icon: '🌱', q: 'Are we growing together, or have we stopped investing in the relationship?' },
+      { icon: '💰', q: 'Are we aligned on money — our goals, our values, and how we make decisions?' },
+    ],
+    financeHeading: 'Financial alignment is a relationship superpower',
+    financeBody: 'Financial disagreements are the leading cause of relationship breakdown, and money conflicts are rarely about the money — they are about values, security, and control. Couples who align on financial goals and have regular money conversations are significantly more likely to build lasting wealth and relationship satisfaction. A "money date" is one of the most powerful relationship and financial tools you can use.',
+    steps: [
+      { title: 'Schedule a monthly money date', detail: 'Set one evening per month to review your finances together — no blame, just curiosity. Review spending, progress toward goals, and upcoming decisions.' },
+      { title: 'Do the Wheel of Life together', detail: 'Each score your own wheel separately, then compare. The gaps between your scores reveal the most important conversations to have.' },
+      { title: 'Create 3 shared financial goals', detail: 'A holiday, a home improvement, a long-term investment. Shared goals create shared motivation and reduce financial conflict.' },
+      { title: 'Invest in the relationship deliberately', detail: 'Budget for date nights, experiences, and the occasional weekend away. Relationship investment has an extraordinary return.' },
+    ],
+  },
+  growth: {
+    intro: 'Personal growth is about becoming more — more capable, more self-aware, more aligned with your potential. When this area is thriving you feel challenged, curious, and alive. When it stagnates, a quiet restlessness sets in, often misidentified as boredom or dissatisfaction in other areas.',
+    lowSigns: ['Feeling stuck in the same patterns with the same results', 'No time or energy for reading, learning, or reflection', 'Avoiding challenges that might expose your limitations', 'A sense that you have stopped becoming who you could be'],
+    highSigns: ['Consistent reading, learning, or skill development', 'Seeking out feedback and using it to improve', 'Comfortable being challenged and stepping outside your comfort zone', 'A clear sense of who you are becoming'],
+    questions: [
+      { icon: '📖', q: 'Am I learning something new this month — through reading, courses, or experience?' },
+      { icon: '🪞', q: 'Do I regularly reflect on my patterns, beliefs, and behaviours to understand myself better?' },
+      { icon: '🎯', q: 'Am I actively pursuing goals that require me to grow beyond my current comfort zone?' },
+      { icon: '🧭', q: 'Do I have a clear sense of my values and who I am becoming?' },
+      { icon: '🔄', q: 'Do I seek out feedback and use it — even when it is uncomfortable?' },
+    ],
+    financeHeading: 'Growth creates your future earning power',
+    financeBody: 'Every investment in your skills, knowledge, and self-awareness typically returns 10–50x over a career. The books, courses, coaches, and experiences that expand your thinking directly increase your value in the market and your quality of decision-making — including financial decisions. A monthly "growth budget" is one of the highest-ROI line items in your financial plan.',
+    steps: [
+      { title: 'Create a monthly growth budget', detail: 'Allocate $50–$200/month specifically for books, courses, events, or coaching. Treat it as an investment, not a cost.' },
+      { title: 'Read 10 pages every day', detail: 'That is 3,650 pages per year — approximately 12–15 books. One idea from one book can change the direction of your life.' },
+      { title: 'Enrol in one course this quarter', detail: 'Starting with this course is the right move. Then identify the next skill that would most increase your value or quality of life.' },
+      { title: 'Find a mentor or accountability partner', detail: 'Identify one person who is 5–10 years ahead of where you want to be. Ask them for a 30-minute conversation. Most will say yes.' },
+    ],
+  },
+  fun: {
+    intro: 'Fun, play, and recreation are not luxuries — they are necessities. They recharge your energy, spark creativity, strengthen relationships, and remind you why you are working toward financial goals in the first place. A life without fun is a warning sign, not a badge of honour.',
+    lowSigns: ['Feeling burned out, flat, or emotionally numb', 'Guilt when you are not being "productive"', 'Hobbies and interests abandoned due to lack of time', 'No holidays or proper breaks from work in the past year'],
+    highSigns: ['Regular hobbies and activities that you genuinely enjoy', 'Ability to be fully present and playful without guilt', 'Planned holidays and experiences to look forward to', 'Laughter, lightness, and spontaneity in your life'],
+    questions: [
+      { icon: '😄', q: 'Do I regularly experience genuine joy, laughter, and lightness in my daily life?' },
+      { icon: '🎨', q: 'Do I have at least one hobby or recreational activity I actively pursue?' },
+      { icon: '✈️', q: 'Do I take real holidays where I disconnect and genuinely recharge?' },
+      { icon: '⏸️', q: 'Can I rest and play without feeling guilty about not being productive?' },
+      { icon: '🌟', q: 'Do I have experiences on the calendar that I am genuinely excited about?' },
+    ],
+    financeHeading: 'Skipping fun leads to expensive escape spending',
+    financeBody: 'People who deprive themselves of regular recreation tend to make expensive "escape" purchases impulsively — unplanned holidays, luxury purchases, or numbing spending to compensate for the grind. Budgeting intentionally for fun and experiences is both a mental health investment and a financial safeguard. The best financial plans always include a "fun fund."',
+    steps: [
+      { title: 'Add a fun fund to your budget', detail: 'Create a specific spending category for experiences, hobbies, and leisure. Even $50/month is permission to enjoy without guilt.' },
+      { title: 'Schedule one recreational activity per week', detail: 'It does not need to be expensive — a walk, a sport, a creative project. Put it in the calendar like any other commitment.' },
+      { title: 'Book a holiday or experience 6 months ahead', detail: 'Having something to look forward to improves day-to-day mood and reduces stress. Book it now, save for it over time.' },
+      { title: 'Resurrect an abandoned interest', detail: 'What did you love doing as a child or young adult that you have set aside? Give it 30 minutes this week. Most hobbies cost less than we think.' },
+    ],
+  },
+  environment: {
+    intro: 'Your physical environment — your home, workspace, and neighbourhood — shapes your mood, productivity, sleep, and sense of identity more than most people realise. We tend to adapt to our surroundings without noticing their effect on us.',
+    lowSigns: ['Home or workspace feels cluttered, cramped, or uninspiring', 'You dread coming home or sitting at your desk', 'Your space does not support the habits or focus you want', 'Feeling drained rather than restored by your environment'],
+    highSigns: ['Your home feels calm, orderly, and genuinely restorative', 'Your workspace supports focus and high performance', 'Your physical environment reflects and reinforces your identity and goals', 'You feel proud of and comfortable in your space'],
+    questions: [
+      { icon: '🏠', q: 'Does coming home restore and recharge me, or does it add to my stress?' },
+      { icon: '💻', q: 'Does my workspace genuinely support my best thinking and productivity?' },
+      { icon: '🌿', q: 'Does my physical environment reflect the person I am becoming?' },
+      { icon: '🧹', q: 'Is clutter or disorganisation in my space affecting my clarity or mood?' },
+      { icon: '📍', q: 'Does the area I live in support the lifestyle and relationships I want?' },
+    ],
+    financeHeading: 'Your environment affects your financial behaviour',
+    financeBody: 'A disorganised home leads to lost documents, missed bills, and impulse purchases to compensate for a lack of systems. A well-designed workspace increases productivity and income potential. Long-term, living in an area with good schools, transport, and community access affects property values, career opportunities, and quality of life in ways that compound over decades. Planned environment spending is a financial investment.',
+    steps: [
+      { title: 'Declutter one room this month', detail: 'Start with the room you spend the most time in. The cognitive and emotional relief of a clear space is immediate and well-documented.' },
+      { title: 'Invest in your home office setup', detail: 'A good chair, external monitor, or proper lighting is not a luxury — it directly affects your health and earning capacity. Budget for it.' },
+      { title: 'Create one sanctuary space', detail: 'Designate one area of your home — even a single chair — as a space for calm, reading, or reflection. Make it intentional.' },
+      { title: 'Plan one meaningful home improvement', detail: 'Identify the one change to your home that would most improve your daily experience. Create a savings goal and timeline for it.' },
+    ],
+  },
 };
 
 const R = 120;
@@ -586,12 +917,103 @@ function updateLegend() {
 }
 
 function highlightSpoke(key) {
-  selectedSpoke = selectedSpoke === key ? null : key;
+  const closing = selectedSpoke === key;
+  selectedSpoke = closing ? null : key;
   drawWheel();
   updateLegend();
-  // Scroll to corresponding slider
-  const el = document.getElementById('slider-' + key);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const panel = document.getElementById('spoke-panel');
+  if (closing) {
+    panel.classList.remove('open');
+    return;
+  }
+
+  const s = SPOKES.find(x => x.key === key);
+  const c = SPOKE_CONTENT[key];
+  const score = scores[key] || 0;
+
+  // Header
+  document.getElementById('sp-emoji').textContent = s.emoji;
+  document.getElementById('sp-title').textContent = s.label;
+  document.getElementById('sp-score').textContent = score + '/10';
+  const header = document.getElementById('spoke-panel-header');
+  header.style.background = s.color;
+  panel.style.borderColor = s.color;
+  document.getElementById('spoke-panel-tabs').style.background = hexToRgba(s.color, 0.85);
+
+  // Overview tab
+  document.getElementById('sp-tab-overview').innerHTML = `
+    <p class="spoke-intro">${c.intro}</p>
+    <div class="score-spectrum">
+      <div class="spectrum-card low">
+        <h5>🔴 Signs of a low score</h5>
+        <ul>${c.lowSigns.map(x => `<li>${x}</li>`).join('')}</ul>
+      </div>
+      <div class="spectrum-card high">
+        <h5>🟢 Signs of a high score</h5>
+        <ul>${c.highSigns.map(x => `<li>${x}</li>`).join('')}</ul>
+      </div>
+    </div>
+  `;
+
+  // Reflect tab
+  document.getElementById('sp-tab-reflect').innerHTML = `
+    <p style="font-size:0.88rem;color:var(--gray-500);margin-bottom:14px;">Take a moment with each question. There are no right answers — only honest ones.</p>
+    <ul class="reflection-list">
+      ${c.questions.map(q => `<li><span>${q.icon}</span>${q.q}</li>`).join('')}
+    </ul>
+  `;
+
+  // Finance link tab
+  document.getElementById('sp-tab-finance').innerHTML = `
+    <div class="finance-link-block">
+      <h5>💰 ${c.financeHeading}</h5>
+      <p>${c.financeBody}</p>
+    </div>
+    <a href="course.html" class="btn btn-navy btn-sm">Go to Course →</a>
+  `;
+
+  // Actions tab
+  document.getElementById('sp-tab-actions').innerHTML = `
+    <p style="font-size:0.88rem;color:var(--gray-500);margin-bottom:14px;">Pick one action to start this week. Progress beats perfection.</p>
+    <div class="action-steps">
+      ${c.steps.map((step, i) => `
+        <div class="action-step" style="color:${s.color}">
+          <div class="step-num" style="background:${s.color}">${i + 1}</div>
+          <div class="step-body">
+            <div class="step-title">${step.title}</div>
+            <div class="step-detail">${step.detail}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Reset tabs to Overview
+  document.querySelectorAll('.spoke-panel-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.spoke-tab-pane').forEach((p, i) => p.classList.toggle('active', i === 0));
+
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeSpokenPanel() {
+  selectedSpoke = null;
+  drawWheel();
+  updateLegend();
+  document.getElementById('spoke-panel').classList.remove('open');
+}
+
+function switchSpokeTab(tabEl, paneId) {
+  document.querySelectorAll('.spoke-panel-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.spoke-tab-pane').forEach(p => p.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.getElementById('sp-tab-' + paneId).classList.add('active');
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 /* ── Sliders ─────────────────────────────────────────────── */
