@@ -56,32 +56,158 @@
     .section-title { font-size: 1.6rem; margin-bottom: 8px; }
     .section-sub { color: var(--gray-500); margin-bottom: 40px; }
 
-    /* Wheel of Life preview */
+    /* Wheel of Life section */
     .wheel-section {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
       color: var(--white);
       padding: 64px 40px;
     }
     .wheel-section .section-title { color: var(--white); text-align: center; }
-    .wheel-section .section-sub { color: var(--gray-300); text-align: center; }
-    .wheel-preview {
+    .wheel-section .section-sub { color: var(--gray-300); text-align: center; margin-bottom: 0; }
+
+    /* Spoke buttons */
+    .wheel-spokes-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      max-width: 800px;
-      margin: 40px auto 0;
+      gap: 10px;
+      max-width: 860px;
+      margin: 36px auto 0;
     }
-    .wheel-preview-spoke {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
+    .wol-spoke-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.13);
       border-radius: var(--radius);
-      padding: 20px 12px;
+      padding: 16px 10px;
       text-align: center;
+      cursor: pointer;
       transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
     }
-    .wheel-preview-spoke:hover { background: rgba(201,162,39,0.2); border-color: var(--gold); }
-    .spoke-emoji { font-size: 1.8rem; display: block; margin-bottom: 8px; }
-    .spoke-name { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .wol-spoke-btn:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+    .wol-spoke-btn.active { border-width: 2px; transform: translateY(-2px); }
+    .spoke-emoji { font-size: 1.6rem; }
+    .spoke-name { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.3; }
+    .spoke-chevron { font-size: 0.6rem; color: rgba(255,255,255,0.4); transition: transform var(--transition); }
+    .wol-spoke-btn.active .spoke-chevron { transform: rotate(180deg); color: rgba(255,255,255,0.7); }
+
+    /* Content panel */
+    .wol-content-panel {
+      max-width: 860px;
+      margin: 12px auto 0;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.45s ease, opacity 0.35s ease;
+    }
+    .wol-content-panel.open { max-height: 700px; opacity: 1; }
+
+    .wol-panel-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .wol-panel-left {
+      padding: 28px 28px 28px 30px;
+    }
+    .wol-panel-right {
+      padding: 28px 30px 28px 24px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+    }
+    .wol-panel-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 8px;
+    }
+    .wol-panel-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .wol-panel-desc {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 20px;
+    }
+    .wol-insights {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .wol-insights li {
+      display: flex;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.5;
+    }
+    .wol-insight-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .wol-finance-box {
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .wol-finance-box h5 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+    .wol-finance-box p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
+    }
+    .wol-score-label {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 6px;
+    }
+    .wol-score-bar-wrap {
+      height: 8px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 4px;
+      margin-bottom: 4px;
+      overflow: hidden;
+    }
+    .wol-score-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease 0.2s;
+    }
+    .wol-score-val {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      text-align: right;
+    }
+
+    @media (max-width: 768px) {
+      .wheel-spokes-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .wol-panel-inner { grid-template-columns: 1fr; }
+      .wol-panel-right { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 20px 24px; }
+    }
+    @media (max-width: 560px) {
+      .wheel-spokes-grid { grid-template-columns: repeat(2, 1fr); }
+      .wheel-section { padding: 48px 20px; }
+    }
 
     /* Modules list */
     .modules-grid { display: flex; flex-direction: column; gap: 16px; }
@@ -671,18 +797,235 @@
 <!-- Wheel of Life Section -->
 <section class="wheel-section">
   <div class="section-title">The Wheel of Life Framework</div>
-  <div class="section-sub">We don't just cover money — we cover the whole picture</div>
-  <div class="wheel-preview">
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">💼</span><div class="spoke-name">Career & Work</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">💰</span><div class="spoke-name">Money & Finances</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">🏃</span><div class="spoke-name">Health & Fitness</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">👨‍👩‍👧</span><div class="spoke-name">Family & Friends</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">❤️</span><div class="spoke-name">Romance & Partnership</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">📚</span><div class="spoke-name">Personal Growth</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">🎯</span><div class="spoke-name">Fun & Recreation</div></div>
-    <div class="wheel-preview-spoke"><span class="spoke-emoji">🏠</span><div class="spoke-name">Physical Environment</div></div>
+  <div class="section-sub">Click any area to explore what it means and how it connects to your finances</div>
+
+  <!-- 8 spoke buttons -->
+  <div class="wheel-spokes-grid" id="wol-grid"></div>
+
+  <!-- Expandable content panel -->
+  <div class="wol-content-panel" id="wol-panel">
+    <div class="wol-panel-inner" id="wol-panel-inner"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:28px;">
+    <a href="wheel.html" class="btn btn-primary" style="font-size:0.95rem;">
+      Take the Full Assessment →
+    </a>
   </div>
 </section>
+
+<script>
+/* ── Wheel of Life landing-page spoke content ─────────────── */
+const WOL_SPOKES = [
+  {
+    key:'career', emoji:'💼', label:'Career & Work', color:'#3b82f6',
+    desc:'Your career is where you spend a third of your waking life — and it\'s your primary wealth engine. When work feels meaningful and rewarding, energy flows into every other area. When it drains you, everything suffers.',
+    insights:[
+      'A single salary negotiation can add more to your lifetime wealth than years of expense-cutting',
+      'Career fulfilment directly affects your physical health, relationships, and financial confidence',
+      'Knowing your career values is the foundation of every meaningful financial decision you\'ll make',
+    ],
+    financeHead:'Career is your primary income engine',
+    financeBody:'Most people focus on cutting expenses to build wealth — but raising your income ceiling through strategic career decisions has a far greater long-term impact. Investing time and money in your career development is one of the highest-return financial moves available to you.',
+  },
+  {
+    key:'money', emoji:'💰', label:'Money & Finances', color:'#c9a227',
+    desc:'Money is the hub of the wheel — it connects to and influences every other spoke. Financial clarity creates freedom, choice, and confidence. Financial stress creates anxiety that bleeds into every other area of life.',
+    insights:[
+      'Most people have never calculated their actual net worth — the essential starting point',
+      'Automatic savings habits matter far more than the amount you save when you\'re starting out',
+      'Financial stress is a leading cause of health problems, relationship breakdown, and poor career decisions',
+    ],
+    financeHead:'The spoke that touches all others',
+    financeBody:'Raising your money score directly lifts every other spoke. Financial security reduces health-damaging stress, reduces relationship conflict, funds personal growth, and enables better career choices. This is why Financial Foundations is where the course begins.',
+  },
+  {
+    key:'health', emoji:'🏃', label:'Health & Fitness', color:'#22c55e',
+    desc:'Your physical and mental health is your most valuable long-term asset. Without consistent energy and vitality, no other area of the wheel can operate at full capacity — including your ability to earn, decide clearly, and maintain relationships.',
+    insights:[
+      'Poor health is one of the most financially expensive life events — bills, lost income, reduced productivity',
+      'Regular movement and 7–8 hours of quality sleep improve financial decision-making more than most strategies',
+      'Health stress and financial stress create a reinforcing downward spiral that only one can break',
+    ],
+    financeHead:'Health investment is high-return spending',
+    financeBody:'Gym memberships, quality food, therapy, and preventative care are incorrectly treated as optional in most budgets. The research is clear: people with better physical and mental health earn more, save more, and make significantly better financial decisions across their lifetime.',
+  },
+  {
+    key:'family', emoji:'🧡', label:'Family & Friends', color:'#f97316',
+    desc:'Humans are wired for connection. The quality of your relationships with family and close friends is one of the strongest predictors of happiness, longevity, and resilience in difficult times. This area suffers silently when neglected.',
+    insights:[
+      'Relationship breakdown is one of the most financially devastating life events a person can experience',
+      'Strong relationships build career networks and open doors worth thousands over a lifetime',
+      'Feeling genuinely supported reduces the stress spending that quietly derails most financial plans',
+    ],
+    financeHead:'Relationships are a financial asset',
+    financeBody:'Time and money invested in your closest relationships returns in the form of lower chronic stress, better decision-making, and a support network that cushions you through financial setbacks. Neglecting relationships is never a financial saving.',
+  },
+  {
+    key:'romance', emoji:'❤️', label:'Romance & Partnership', color:'#ec4899',
+    desc:'Your intimate relationship shapes your emotional baseline and your financial trajectory. Couples who align on money, goals, and values build significantly more wealth — and experience significantly less conflict — than those who don\'t.',
+    insights:[
+      'Financial disagreements are consistently ranked as the leading cause of relationship breakdown',
+      'Money conflicts are rarely about money — they\'re about values, security, and control',
+      'A monthly "money date" is one of the most effective relationship and financial tools available',
+    ],
+    financeHead:'Alignment creates a wealth multiplier',
+    financeBody:'When two people pull in the same financial direction, their combined income, savings rate, and investment decisions compound dramatically faster than when finances are a source of conflict. Aligning on financial goals with your partner is not just a relationship strategy — it\'s a wealth strategy.',
+  },
+  {
+    key:'growth', emoji:'📚', label:'Personal Growth', color:'#8b5cf6',
+    desc:'Personal growth is about becoming more capable, self-aware, and aligned with your potential. When this area thrives, you attract better opportunities, make better decisions, and generate better outcomes in every other spoke.',
+    insights:[
+      'Every dollar invested in skills and knowledge has historically returned 10–50x over a career',
+      'Growth creates earning power and financial resilience that no market downturn can take away',
+      'Self-awareness about your money patterns is the single most important foundation of lasting financial change',
+    ],
+    financeHead:'Growth creates your future earning power',
+    financeBody:'A monthly "growth budget" — books, courses, events, coaching — is one of the highest-ROI line items in any financial plan. The ideas you encounter and the skills you develop directly expand your income potential and the quality of every financial decision you make.',
+  },
+  {
+    key:'fun', emoji:'🎯', label:'Fun & Recreation', color:'#06b6d4',
+    desc:'Fun and play are not luxuries — they are necessities. They recharge your creative energy, strengthen relationships, and remind you why you\'re working toward financial goals in the first place. A life without joy is a warning sign, not a badge of honour.',
+    insights:[
+      'People who deprive themselves of recreation make more impulsive, expensive "escape" purchases',
+      'Planned fun spending in a budget actually reduces total discretionary spending over time',
+      'Having something to look forward to significantly and measurably improves day-to-day wellbeing',
+    ],
+    financeHead:'Planned fun prevents expensive burnout',
+    financeBody:'A "fun fund" in your financial plan is both a mental health investment and a financial safeguard. People who budget for experiences and hobbies are far less likely to make the large, regrettable impulse purchases that come from sustained deprivation and burnout.',
+  },
+  {
+    key:'environment', emoji:'🏠', label:'Physical Environment', color:'#64748b',
+    desc:'Your home, workspace, and neighbourhood shape your mood, productivity, sleep, and identity more than most people acknowledge. We adapt to our surroundings without noticing their cumulative effect on our quality of life and financial behaviour.',
+    insights:[
+      'A clear, organised space directly improves financial organisation, bill management, and clear thinking',
+      'Your workspace quality affects your earning capacity, professional presence, and daily output',
+      'Where you live affects property values, career access, and cost of living — compounding across decades',
+    ],
+    financeHead:'Environment affects financial behaviour',
+    financeBody:'A disorganised home leads to missed bills, lost documents, and impulsive purchases that compensate for a lack of systems. A well-designed workspace increases productivity and income potential. Planned environment investment prevents the expensive reactive purchases made from sustained dissatisfaction.',
+  },
+];
+
+(function() {
+  const grid  = document.getElementById('wol-grid');
+  const panel = document.getElementById('wol-panel');
+  const inner = document.getElementById('wol-panel-inner');
+  let active  = null;
+
+  // Retrieve saved Wheel scores from localStorage (from wheel.html)
+  function getScore(key) {
+    try { return JSON.parse(localStorage.getItem('wol-scores') || '{}')[key] || null; }
+    catch { return null; }
+  }
+
+  // Build spoke buttons
+  WOL_SPOKES.forEach(s => {
+    const btn = document.createElement('div');
+    btn.className = 'wol-spoke-btn';
+    btn.id = 'wol-btn-' + s.key;
+    btn.style.setProperty('--spoke-color', s.color);
+    const score = getScore(s.key);
+    btn.innerHTML = `
+      <span class="spoke-emoji">${s.emoji}</span>
+      <div class="spoke-name">${s.label}</div>
+      ${score ? `<div style="font-size:0.7rem;font-weight:700;color:${s.color};margin-top:2px;">${score}/10</div>` : ''}
+      <span class="spoke-chevron">▼</span>
+    `;
+    btn.addEventListener('click', () => toggleSpoke(s.key));
+    grid.appendChild(btn);
+  });
+
+  function toggleSpoke(key) {
+    if (active === key) {
+      // Close
+      active = null;
+      panel.classList.remove('open');
+      document.querySelectorAll('.wol-spoke-btn').forEach(b => b.classList.remove('active'));
+      return;
+    }
+    active = key;
+    const s = WOL_SPOKES.find(x => x.key === key);
+    const score = getScore(key);
+
+    // Colour all buttons — highlight active
+    document.querySelectorAll('.wol-spoke-btn').forEach(b => {
+      b.classList.remove('active');
+      b.style.background = '';
+      b.style.borderColor = '';
+    });
+    const activeBtn = document.getElementById('wol-btn-' + key);
+    activeBtn.classList.add('active');
+    activeBtn.style.background = hexAlpha(s.color, 0.22);
+    activeBtn.style.borderColor = s.color;
+
+    // Render panel content
+    inner.style.background = `linear-gradient(135deg, ${hexAlpha(s.color, 0.18)} 0%, rgba(26,39,68,0.85) 100%)`;
+
+    inner.innerHTML = `
+      <div class="wol-panel-left">
+        <div class="wol-panel-eyebrow" style="color:${s.color}">${s.label}</div>
+        <div class="wol-panel-title">
+          <span style="font-size:1.6rem">${s.emoji}</span>
+          What is this area about?
+        </div>
+        <p class="wol-panel-desc">${s.desc}</p>
+        <ul class="wol-insights">
+          ${s.insights.map(ins => `
+            <li>
+              <span class="wol-insight-dot" style="background:${s.color}"></span>
+              ${ins}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      <div class="wol-panel-right">
+        <div class="wol-finance-box" style="background:${hexAlpha(s.color,0.15)};border:1px solid ${hexAlpha(s.color,0.35)}">
+          <h5>💰 Finance Connection</h5>
+          <p><strong>${s.financeHead}.</strong> ${s.financeBody}</p>
+        </div>
+        ${score ? `
+          <div style="margin-bottom:20px">
+            <div class="wol-score-label">Your current score</div>
+            <div class="wol-score-bar-wrap">
+              <div class="wol-score-bar-fill" id="wol-bar-${key}" style="width:0%;background:${s.color}"></div>
+            </div>
+            <div class="wol-score-val">${score}/10</div>
+          </div>
+        ` : `
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:20px;">
+            You haven't scored this area yet. Take the assessment to see where you stand.
+          </p>
+        `}
+        <a href="wheel.html" class="btn btn-sm" style="background:${s.color};color:#fff;font-weight:700;">
+          Rate this area on your Wheel →
+        </a>
+      </div>
+    `;
+
+    panel.classList.add('open');
+
+    // Animate score bar after DOM settles
+    if (score) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const bar = document.getElementById('wol-bar-' + key);
+        if (bar) bar.style.width = (score * 10) + '%';
+      }));
+    }
+
+    // Scroll panel into view
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hexAlpha(hex, a) {
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // Open Career & Work by default
+  toggleSpoke('career');
+})();
+</script>
 
 <!-- Course Modules -->
 <section class="section" id="modules">
