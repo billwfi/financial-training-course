@@ -214,15 +214,19 @@
         <h2 class="puzzle-question" id="puzzle-q">What's the most important piece of a jigsaw puzzle?</h2>
       </div>
       <div class="puzzle-answer-wrap" id="puzzle-a-wrap">
-        <div class="puzzle-answer" id="puzzle-a">The next one.</div>
+        <div class="puzzle-answer" id="puzzle-a">The picture on the box.</div>
         <p class="puzzle-sub" id="puzzle-sub">
-          You don't need a perfect financial plan to get started.<br>
-          You need the <em>next piece</em> — the next habit, the next decision, the next lesson.<br><br>
-          That's how lasting wealth is built. One piece at a time.
+          Every jigsaw puzzle starts with a vision — the picture on the box.<br>
+          Without it, you're just pushing pieces around.<br><br>
+          Your financial plan works the same way. Before you can build the life you want,
+          you need a <em>clear picture of what that life looks like</em>.<br><br>
+          That's what this course helps you create.
         </p>
-        <a href="course.html" class="btn btn-primary puzzle-cta" id="puzzle-cta">
-          Find your next piece →
-        </a>
+        <div id="puzzle-cta-wrap">
+          <a href="wheel.html" class="btn btn-primary puzzle-cta">
+            Build your vision →
+          </a>
+        </div>
       </div>
     </div>
 
@@ -318,8 +322,8 @@
     margin-bottom: 28px;
   }
   .puzzle-sub em { color: var(--gold-light); font-style: normal; font-weight: 600; }
-  .puzzle-cta { opacity: 0; transition: opacity 0.6s ease 0.3s; }
-  .puzzle-cta.visible { opacity: 1; }
+  #puzzle-cta-wrap { opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  #puzzle-cta-wrap.visible { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 900px) {
     .puzzle-inner { grid-template-columns: 1fr; gap: 32px; }
@@ -329,7 +333,7 @@
 </style>
 
 <script>
-/* ── Jigsaw Puzzle Animation ─────────────────────────────── */
+/* ── Jigsaw Puzzle Animation — lifestyle imagery ─────────── */
 (function() {
   const canvas = document.getElementById('puzzle-canvas');
   const ctx = canvas.getContext('2d');
@@ -337,132 +341,226 @@
   canvas.width = CW; canvas.height = CH;
 
   const COLS = 3, ROWS = 3;
-  const PW = 100, PH = 100;                    // piece size (world)
-  const OX = (CW - COLS * PW) / 2;            // puzzle origin x on canvas
-  const OY = (CH - ROWS * PH) / 2;            // puzzle origin y on canvas
-  const SPECIAL = { r: 1, c: 1 };             // center piece is "the next one"
+  const PW = 110, PH = 110;
+  const OX = (CW - COLS * PW) / 2;
+  const OY = (CH - ROWS * PH) / 2;
 
-  // Tab pattern: rowGap[gapRow][col], colGap[gapCol][row]
-  // 1 = tab protrudes from the lower/right piece, -1 = blank on that edge
+  /* ── Lifestyle data — one per piece, row-major order ────── */
+  const LIFESTYLES = [
+    { emoji:'🏖️', label:'Beach Life',        c1:'#0077b6', c2:'#ade8f4', sky:'#90e0ef' },
+    { emoji:'✈️', label:'World Travel',       c1:'#023e8a', c2:'#4361ee', sky:'#4cc9f0' },
+    { emoji:'🚢', label:'Cruise Life',        c1:'#03045e', c2:'#0096c7', sky:'#48cae4' },
+    { emoji:'🏡', label:'Dream Home',         c1:'#7f4f24', c2:'#c9a227', sky:'#e9c46a' },
+    { emoji:'🌟', label:'Your Vision',        c1:'#c9a227', c2:'#f9c74f', sky:'#fff3b0' }, // SPECIAL
+    { emoji:'👨‍👩‍👧', label:'Family Life',       c1:'#9d0208', c2:'#e85d04', sky:'#f48c06' },
+    { emoji:'🏔️', label:'Adventure',          c1:'#1b4332', c2:'#40916c', sky:'#95d5b2' },
+    { emoji:'⛳', label:'Freedom & Play',     c1:'#386641', c2:'#6a994e', sky:'#a7c957' },
+    { emoji:'🎉', label:'Financial Freedom',  c1:'#5a189a', c2:'#9d4edd', sky:'#c77dff' },
+  ];
+
   const ROW_GAP = [[1,-1,1],[-1,1,-1]];
   const COL_GAP = [[1,-1,1],[-1,1,-1]];
 
   function tabsFor(r, c) {
     return {
-      top:    r === 0          ? 0 : -ROW_GAP[r-1][c],
-      bottom: r === ROWS-1     ? 0 :  ROW_GAP[r][c],
-      left:   c === 0          ? 0 : -COL_GAP[c-1][r],
-      right:  c === COLS-1     ? 0 :  COL_GAP[c][r],
+      top:    r === 0       ? 0 : -ROW_GAP[r-1][c],
+      bottom: r === ROWS-1  ? 0 :  ROW_GAP[r][c],
+      left:   c === 0       ? 0 : -COL_GAP[c-1][r],
+      right:  c === COLS-1  ? 0 :  COL_GAP[c][r],
     };
   }
 
-  /* Draw one piece centred at (0,0) using bezier curves */
+  /* ── Piece path (bezier jigsaw edges) ────────────────────── */
   function drawPiecePath(w, h, {top, right, bottom, left}) {
-    const e = h * 0.23;    // tab protrusion
-    const b = w * 0.15;    // half tab-base width
-
-    function tabEdge(x1,y1, x2,y2, dir) {
-      // dir: perpendicular direction (+1 = outward, -1 = inward)
-      const mx = (x1+x2)/2, my = (y1+y2)/2;
-      const dx = x2-x1, dy = y2-y1;
-      const nx = -dy * dir * e / Math.hypot(dx,dy);
-      const ny =  dx * dir * e / Math.hypot(dx,dy);
-      const bx = dx * b / Math.hypot(dx,dy);
-      const by = dy * b / Math.hypot(dx,dy);
-      ctx.lineTo(mx - bx, my - by);
-      ctx.bezierCurveTo(
-        mx - bx, my - by + ny*0.4,
-        mx - bx*0.5 + nx, my - by*0.5 + ny,
-        mx + nx, my + ny
-      );
-      ctx.bezierCurveTo(
-        mx + bx*0.5 + nx, my + by*0.5 + ny,
-        mx + bx, my + by + ny*0.4,
-        mx + bx, my + by
-      );
+    const e = h * 0.22, b = w * 0.15;
+    function tabEdge(x1,y1,x2,y2,dir) {
+      const mx=(x1+x2)/2, my=(y1+y2)/2, dx=x2-x1, dy=y2-y1;
+      const len=Math.hypot(dx,dy);
+      const nx=-dy*dir*e/len, ny=dx*dir*e/len;
+      const bx=dx*b/len, by=dy*b/len;
+      ctx.lineTo(mx-bx, my-by);
+      ctx.bezierCurveTo(mx-bx,my-by+ny*.4, mx-bx*.5+nx,my-by*.5+ny, mx+nx,my+ny);
+      ctx.bezierCurveTo(mx+bx*.5+nx,my+by*.5+ny, mx+bx,my+by+ny*.4, mx+bx,my+by);
       ctx.lineTo(x2, y2);
     }
-
-    const hw = w/2, hh = h/2;
-    ctx.beginPath();
-    ctx.moveTo(-hw, -hh);
-
-    // Top edge
-    if (top === 0) ctx.lineTo(hw, -hh);
-    else tabEdge(-hw,-hh, hw,-hh, -top);
-
-    // Right edge
-    if (right === 0) ctx.lineTo(hw, hh);
-    else tabEdge(hw,-hh, hw,hh, right);
-
-    // Bottom edge
-    if (bottom === 0) ctx.lineTo(-hw, hh);
-    else tabEdge(hw,hh, -hw,hh, bottom);
-
-    // Left edge
-    if (left === 0) ctx.lineTo(-hw, -hh);
-    else tabEdge(-hw,hh, -hw,-hh, -left);
-
+    const hw=w/2, hh=h/2;
+    ctx.beginPath(); ctx.moveTo(-hw,-hh);
+    top    === 0 ? ctx.lineTo(hw,-hh)   : tabEdge(-hw,-hh, hw,-hh,  -top);
+    right  === 0 ? ctx.lineTo(hw,hh)    : tabEdge(hw,-hh,  hw,hh,    right);
+    bottom === 0 ? ctx.lineTo(-hw,hh)   : tabEdge(hw,hh,  -hw,hh,   bottom);
+    left   === 0 ? ctx.lineTo(-hw,-hh)  : tabEdge(-hw,hh, -hw,-hh,  -left);
     ctx.closePath();
   }
 
-  /* ── Piece state ─────────────────────────────────────────── */
+  /* ── Draw a lifestyle piece ──────────────────────────────── */
+  function drawPiece(p, T, isSpecial) {
+    const ls = p.lifestyle;
+    const orbiting = isSpecial && T >= 7.5 && T < 9.5;
+
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    // Drop shadow (draw tiny invisible path first so shadow renders)
+    ctx.save();
+    ctx.shadowColor = isSpecial ? 'rgba(249,199,79,0.55)' : 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur  = isSpecial ? (orbiting ? 28 + Math.sin(T*3.5)*10 : 18) : 10;
+    ctx.shadowOffsetY = isSpecial ? 0 : 5;
+    drawPiecePath(PW, PH, p.tabs);
+    ctx.fillStyle = 'rgba(0,0,0,0.01)';
+    ctx.fill();
+    ctx.restore();
+
+    // ── Clip to jigsaw shape then paint lifestyle scene ──
+    ctx.save();
+    drawPiecePath(PW, PH, p.tabs);
+    ctx.clip();
+
+    // Sky gradient background
+    const g = ctx.createLinearGradient(-PW/2, -PH/2, PW/2, PH/2);
+    g.addColorStop(0, ls.c1);
+    g.addColorStop(1, ls.c2);
+    ctx.fillStyle = g;
+    ctx.fillRect(-PW/2-25, -PH/2-25, PW+50, PH+50);
+
+    // Horizontal light bands (simulate photo atmosphere)
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    for (let i=-PH/2; i<PH/2; i+=5) { ctx.fillRect(-PW/2-25, i, PW+50, 2.5); }
+
+    // Bottom vignette — dark area for label legibility
+    const vg = ctx.createLinearGradient(0,-PH/2+60, 0,PH/2+25);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(1,'rgba(0,0,0,0.62)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(-PW/2-25, -PH/2+60, PW+50, PH+50);
+
+    // Special piece: gold shimmer overlay when orbiting
+    if (orbiting) {
+      const shimmer = Math.abs(Math.sin(T*2.5));
+      ctx.fillStyle = `rgba(249,199,79,${0.12 + shimmer*0.1})`;
+      ctx.fillRect(-PW/2-25, -PH/2-25, PW+50, PH+50);
+    }
+
+    // Emoji (main visual)
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 6;
+    ctx.font = `${isSpecial ? 38 : 34}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ls.emoji, 0, -8);
+    ctx.shadowBlur = 0;
+
+    // Label
+    ctx.font = 'bold 8.5px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(ls.label, 0, PH/2 - 10);
+
+    ctx.restore(); // remove clip
+
+    // Piece border
+    drawPiecePath(PW, PH, p.tabs);
+    ctx.strokeStyle = isSpecial
+      ? (orbiting ? `rgba(249,199,79,${0.7+Math.sin(T*4)*0.2})` : 'rgba(249,199,79,0.7)')
+      : 'rgba(255,255,255,0.22)';
+    ctx.lineWidth = isSpecial ? 2 : 1;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  /* ── "Picture on the box" preview (top-right corner) ────── */
+  function drawBoxPreview(T) {
+    const alpha = Math.min(1, Math.max(0, (T - 0.8) / 1.2));
+    if (alpha <= 0) return;
+    const BS = 26;                            // mini cell size
+    const BX = CW - COLS*BS - 16;            // right-aligned
+    const BY = 12;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Box background
+    const boxW = COLS*BS + 10, boxH = ROWS*BS + 18;
+    ctx.fillStyle = 'rgba(5,10,24,0.88)';
+    ctx.strokeStyle = 'rgba(201,162,39,0.65)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(BX - 5, BY - 5, boxW, boxH, 5);
+    ctx.fill(); ctx.stroke();
+
+    // Header label
+    ctx.fillStyle = '#c9a227';
+    ctx.font = 'bold 6px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('THE BOX', BX - 5 + boxW/2, BY + ROWS*BS + 9);
+
+    // Mini lifestyle cells
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const ls = LIFESTYLES[r * COLS + c];
+        const cx = BX + c*BS, cy = BY + r*BS;
+        // Gradient fill
+        const mg = ctx.createLinearGradient(cx, cy, cx+BS, cy+BS);
+        mg.addColorStop(0, ls.c1); mg.addColorStop(1, ls.c2);
+        ctx.fillStyle = mg;
+        ctx.fillRect(cx, cy, BS-1, BS-1);
+        // Emoji
+        ctx.font = '12px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(ls.emoji, cx + BS/2 - 0.5, cy + BS/2 - 0.5);
+      }
+    }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 0.5;
+    for (let i=1;i<ROWS;i++){ctx.beginPath();ctx.moveTo(BX,BY+i*BS);ctx.lineTo(BX+COLS*BS-1,BY+i*BS);ctx.stroke();}
+    for (let i=1;i<COLS;i++){ctx.beginPath();ctx.moveTo(BX+i*BS,BY);ctx.lineTo(BX+i*BS,BY+ROWS*BS-1);ctx.stroke();}
+
+    ctx.restore();
+  }
+
+  /* ── Build pieces ────────────────────────────────────────── */
   const pieces = [];
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      const tx = OX + c * PW + PW/2;
-      const ty = OY + r * PH + PH/2;
-      const isSpecial = (r === SPECIAL.r && c === SPECIAL.c);
-      // Scatter start positions
-      const angle = Math.random() * Math.PI * 2;
-      const dist  = 120 + Math.random() * 80;
+      const isSpecial = (r === 1 && c === 1);
+      const a = Math.random()*Math.PI*2, dist = 130+Math.random()*70;
       pieces.push({
         r, c,
         tabs: tabsFor(r, c),
-        tx, ty,
-        x: CW/2 + Math.cos(angle)*dist,
-        y: CH/2 + Math.sin(angle)*dist,
-        rot: (Math.random()-0.5) * Math.PI * 0.8,
-        driftX: (Math.random()-0.5)*0.4,
-        driftY: (Math.random()-0.5)*0.4,
-        driftRot: (Math.random()-0.5)*0.004,
+        tx: OX + c*PW + PW/2,
+        ty: OY + r*PH + PH/2,
+        x: CW/2 + Math.cos(a)*dist,
+        y: CH/2 + Math.sin(a)*dist,
+        rot: (Math.random()-0.5)*Math.PI*0.9,
+        driftX: (Math.random()-0.5)*0.45,
+        driftY: (Math.random()-0.5)*0.45,
+        driftRot: (Math.random()-0.5)*0.005,
+        lifestyle: LIFESTYLES[r*COLS + c],
         isSpecial,
         placed: false,
       });
     }
   }
 
+  const NON_SPECIAL  = pieces.filter(p => !p.isSpecial);
+  const SPECIAL_PIECE = pieces.find(p =>  p.isSpecial);
+
   /* ── Easing ─────────────────────────────────────────────── */
-  const ease = {
-    out:    t => 1 - Math.pow(1-t, 3),
-    inOut:  t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2,
-    spring: t => {
-      const c4 = (2*Math.PI)/3;
-      return t === 0 ? 0 : t === 1 ? 1 :
-        Math.pow(2,-10*t) * Math.sin((t*10-0.75)*c4) + 1;
-    }
+  const spring = t => {
+    if (t <= 0) return 0; if (t >= 1) return 1;
+    return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;
   };
+  const lerp = (a,b,t) => a+(b-a)*t;
+  const lerpA = (a,b,t) => { let d=((b-a)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI; return a+d*t; };
 
-  function lerp(a, b, t) { return a + (b-a)*t; }
-  function lerpAngle(a, b, t) {
-    let d = ((b-a) % (Math.PI*2) + Math.PI*3) % (Math.PI*2) - Math.PI;
-    return a + d*t;
-  }
+  /* ── Tick ────────────────────────────────────────────────── */
+  let startTime=null, animDone=false;
 
-  /* ── Animation phases ────────────────────────────────────── */
-  // Phase 0: scatter drift            0  – 2.5s
-  // Phase 1: question text visible    2s (CSS class added)
-  // Phase 2: 8 pieces assemble        2.5 – 7.5s (staggered)
-  // Phase 3: special piece pulses     7.5 – 9.5s
-  // Phase 4: answer text visible      8.5s (CSS class added)
-  // Phase 5: special piece snaps in   9.5 – 11s
-  // Phase 6: full glow + CTA          11s+
-
-  const NON_SPECIAL = pieces.filter(p => !p.isSpecial);
-  const SPECIAL_PIECE = pieces.find(p => p.isSpecial);
-
-  let startTime = null;
-  let animDone = false;
+  // Capture initial scatter positions for deterministic replay
+  const initState = pieces.map(p => ({x:p.x,y:p.y,rot:p.rot,dx:p.driftX,dy:p.driftY,dr:p.driftRot}));
 
   function tick(ts) {
     if (!startTime) startTime = ts;
@@ -470,215 +568,102 @@
 
     ctx.clearRect(0, 0, CW, CH);
 
-    // Background
-    ctx.fillStyle = 'rgba(17,27,48,0)';
-    ctx.fillRect(0, 0, CW, CH);
+    if (T >= 2.0) showText('puzzle-q-wrap');
 
-    // Show question text
-    if (T >= 2.0) showText('puzzle-q-wrap', ['puzzle-eyebrow','puzzle-question']);
-
-    // Assemble non-special pieces staggered between 2.5s and 7.5s
+    // ── Assemble non-special pieces (staggered 2.5 → 8.5s) ──
     NON_SPECIAL.forEach((p, i) => {
-      const delay = 2.5 + i * (5.0 / NON_SPECIAL.length);
-      const dur   = 1.2;
-      const t     = Math.max(0, Math.min(1, (T - delay) / dur));
-      const te    = ease.spring(t);
-
-      if (t >= 1) { p.placed = true; }
-
-      p.x   = lerp(p.x,   p.tx,  t < 1 ? ease.out(t)*0.06 : 1) ;
-      p.y   = lerp(p.y,   p.ty,  t < 1 ? ease.out(t)*0.06 : 1) ;
-      p.rot = lerpAngle(p.rot, 0, t < 1 ? ease.out(t)*0.06 : 1);
-
-      if (!p.placed) {
-        p.x   = lerp(p.x,   p.tx,  te * (t > 0 ? 1 : 0));
-        p.y   = lerp(p.y,   p.ty,  te * (t > 0 ? 1 : 0));
-        p.rot = lerpAngle(p.rot, 0, te * (t > 0 ? 1 : 0));
-      } else {
-        p.x = p.tx; p.y = p.ty; p.rot = 0;
-      }
-
-      if (t < 1) {
-        p.x += p.driftX;
-        p.y += p.driftY;
-        p.rot += p.driftRot;
-      }
-    });
-
-    // Properly assemble non-special pieces (force once t>=1)
-    NON_SPECIAL.forEach(p => {
-      const delay = 2.5 + NON_SPECIAL.indexOf(p) * (5.0 / NON_SPECIAL.length);
-      const t = Math.max(0, Math.min(1, (T - delay) / 1.2));
-      const te = ease.spring(t);
+      const delay = 2.5 + i*(6.0/NON_SPECIAL.length), dur=1.3;
+      const t = Math.max(0, Math.min(1, (T-delay)/dur));
       if (t > 0 && t < 1) {
-        const ix = p.x; const iy = p.y; const ir = p.rot;
-        p.x   = lerp(ix, p.tx, te);
-        p.y   = lerp(iy, p.ty, te);
-        p.rot = lerpAngle(ir, 0, te);
+        const te = spring(t);
+        p.x   = lerp(p.x,  p.tx, te);
+        p.y   = lerp(p.y,  p.ty, te);
+        p.rot = lerpA(p.rot, 0,   te);
+      } else if (t >= 1) {
+        p.x=p.tx; p.y=p.ty; p.rot=0; p.placed=true;
+      } else {
+        p.x+=p.driftX; p.y+=p.driftY; p.rot+=p.driftRot;
       }
-      if (t >= 1) { p.x = p.tx; p.y = p.ty; p.rot = 0; }
     });
 
-    // Special piece: drift until T=9.5, then snap
+    // ── Special piece movement ────────────────────────────── */
     if (T < 7.5) {
-      SPECIAL_PIECE.x += SPECIAL_PIECE.driftX;
-      SPECIAL_PIECE.y += SPECIAL_PIECE.driftY;
-      SPECIAL_PIECE.rot += SPECIAL_PIECE.driftRot;
-      // Gentle bounce off canvas edges
-      if (SPECIAL_PIECE.x < 30 || SPECIAL_PIECE.x > CW-30) SPECIAL_PIECE.driftX *= -1;
-      if (SPECIAL_PIECE.y < 30 || SPECIAL_PIECE.y > CH-30) SPECIAL_PIECE.driftY *= -1;
+      SPECIAL_PIECE.x+=SPECIAL_PIECE.driftX; SPECIAL_PIECE.y+=SPECIAL_PIECE.driftY; SPECIAL_PIECE.rot+=SPECIAL_PIECE.driftRot;
+      if(SPECIAL_PIECE.x<35||SPECIAL_PIECE.x>CW-35) SPECIAL_PIECE.driftX*=-1;
+      if(SPECIAL_PIECE.y<35||SPECIAL_PIECE.y>CH-35) SPECIAL_PIECE.driftY*=-1;
     } else if (T < 9.5) {
-      // Orbit around its target position
-      const orbit = 55 * Math.max(0, 1 - (T-7.5)/2);
-      const a = T * 1.2;
-      SPECIAL_PIECE.x = SPECIAL_PIECE.tx + Math.cos(a) * orbit;
-      SPECIAL_PIECE.y = SPECIAL_PIECE.ty + Math.sin(a) * orbit - 15;
-      SPECIAL_PIECE.rot = Math.sin(T * 1.5) * 0.18;
+      const orbit = 60*Math.max(0,1-(T-7.5)/2);
+      const a = T*1.3;
+      SPECIAL_PIECE.x = SPECIAL_PIECE.tx + Math.cos(a)*orbit;
+      SPECIAL_PIECE.y = SPECIAL_PIECE.ty + Math.sin(a)*orbit - 18;
+      SPECIAL_PIECE.rot = Math.sin(T*2)*0.2;
     } else {
-      // Snap into place
-      const t = Math.min(1, (T - 9.5) / 1.3);
-      const te = ease.spring(t);
+      const t = Math.min(1,(T-9.5)/1.4), te=spring(t);
       SPECIAL_PIECE.x   = lerp(SPECIAL_PIECE.x,   SPECIAL_PIECE.tx, te);
       SPECIAL_PIECE.y   = lerp(SPECIAL_PIECE.y,   SPECIAL_PIECE.ty, te);
-      SPECIAL_PIECE.rot = lerpAngle(SPECIAL_PIECE.rot, 0, te);
-      if (t >= 1) { SPECIAL_PIECE.x = SPECIAL_PIECE.tx; SPECIAL_PIECE.y = SPECIAL_PIECE.ty; SPECIAL_PIECE.rot = 0; }
+      SPECIAL_PIECE.rot = lerpA(SPECIAL_PIECE.rot, 0, te);
+      if(t>=1){SPECIAL_PIECE.x=SPECIAL_PIECE.tx;SPECIAL_PIECE.y=SPECIAL_PIECE.ty;SPECIAL_PIECE.rot=0;}
     }
 
-    // Answer text at 8.5s
-    if (T >= 8.5) showText('puzzle-a-wrap', ['puzzle-answer-wrap']);
+    if (T >= 8.5) showText('puzzle-a-wrap');
+    if (T >= 12.0) showText('puzzle-cta-wrap');
 
-    // CTA at 11.5s
-    if (T >= 11.5) showText('puzzle-cta', ['puzzle-cta']);
+    // Ghost assembly guide
+    const ga = Math.min(0.12,(T-1)*0.07);
+    if(ga>0){ctx.save();ctx.strokeStyle=`rgba(201,162,39,${ga})`;ctx.lineWidth=1;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)ctx.strokeRect(OX+c*PW+1,OY+r*PH+1,PW-2,PH-2);ctx.restore();}
 
-    // Draw assembled outline (grid) as ghost guide
-    const guideAlpha = Math.min(0.15, (T - 1) * 0.08);
-    if (guideAlpha > 0) {
-      ctx.save();
-      ctx.strokeStyle = `rgba(201,162,39,${guideAlpha})`;
-      ctx.lineWidth = 1;
-      for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
-        ctx.strokeRect(OX + c*PW + 1, OY + r*PH + 1, PW-2, PH-2);
-      }
-      ctx.restore();
-    }
-
-    // Draw all non-special pieces
+    // Draw pieces
     NON_SPECIAL.forEach(p => drawPiece(p, T, false));
-
-    // Draw special piece last (on top)
     drawPiece(SPECIAL_PIECE, T, true);
 
-    // Completion glow overlay
-    if (T >= 10.8) {
-      const glow = Math.min(1, (T - 10.8) / 0.8);
-      ctx.save();
-      ctx.globalAlpha = glow * 0.12;
-      const grad = ctx.createRadialGradient(CW/2, CH/2, 10, CW/2, CH/2, 200);
-      grad.addColorStop(0, '#c9a227');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, CW, CH);
-      ctx.restore();
+    // "Picture on the box" preview
+    drawBoxPreview(T);
+
+    // Completion radial glow
+    if(T >= 11.0){
+      const glow=Math.min(1,(T-11)/1.2);
+      ctx.save();ctx.globalAlpha=glow*0.14;
+      const rg=ctx.createRadialGradient(CW/2,CH/2,10,CW/2,CH/2,210);
+      rg.addColorStop(0,'#f9c74f');rg.addColorStop(1,'transparent');
+      ctx.fillStyle=rg;ctx.fillRect(0,0,CW,CH);ctx.restore();
     }
 
-    if (!animDone) requestAnimationFrame(tick);
+    if(!animDone) requestAnimationFrame(tick);
   }
 
-  function drawPiece(p, T, isS) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-
-    // Shadow
-    ctx.shadowColor = isS ? 'rgba(201,162,39,0.5)' : 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur  = isS ? (T > 7.5 && T < 9.5 ? 24 + Math.sin(T*3)*8 : 16) : 8;
-    ctx.shadowOffsetY = isS ? 0 : 4;
-
-    drawPiecePath(PW, PH, p.tabs);
-
-    // Fill
-    if (isS) {
-      const pulse = T > 7.5 && T < 9.5 ? 0.08 * Math.sin(T * 4) : 0;
-      ctx.fillStyle = `rgba(${201 + Math.round(pulse*100)}, ${162 + Math.round(pulse*60)}, 39, 0.92)`;
-    } else {
-      ctx.fillStyle = p.placed ? 'rgba(230,235,248,0.92)' : 'rgba(210,218,240,0.75)';
-    }
-    ctx.fill();
-
-    // Stroke
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = isS ? 'rgba(201,162,39,0.6)' : 'rgba(100,120,160,0.35)';
-    ctx.lineWidth = isS ? 1.5 : 1;
-    ctx.stroke();
-
-    // Inner highlight
-    ctx.save();
-    const ig = ctx.createLinearGradient(-PW/2, -PH/2, PW/2, PH/2);
-    ig.addColorStop(0, 'rgba(255,255,255,0.18)');
-    ig.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = ig;
-    drawPiecePath(PW, PH, p.tabs);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore();
-  }
-
-  /* ── Text reveal helpers ─────────────────────────────────── */
+  /* ── Text reveal ─────────────────────────────────────────── */
   const shown = new Set();
-  function showText(wrapperId, classNames) {
-    if (shown.has(wrapperId)) return;
-    shown.add(wrapperId);
-    const wrap = document.getElementById(wrapperId);
-    if (wrap) {
-      classNames.forEach(cn => {
-        const el = document.getElementById(wrapperId) || wrap.querySelector('.' + cn);
-        if (el && el.id === wrapperId) el.classList.add('visible');
-        wrap.querySelectorAll('.' + cn).forEach(e => e.classList.add('visible'));
-        // also try direct class match
-        const direct = document.querySelector('.' + cn);
-        if (direct) direct.classList.add('visible');
-      });
-      if (wrap.classList.contains('puzzle-cta')) wrap.classList.add('visible');
-      wrap.classList.add('visible');
+  function showText(id) {
+    if (shown.has(id)) return;
+    shown.add(id);
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('visible');
+      el.querySelectorAll('[class]').forEach(c => c.classList.add('visible'));
     }
   }
 
-  /* ── Intersection Observer: start when visible ───────────── */
-  let started = false;
-  function startAnim() {
-    if (started) return;
-    started = true;
-    requestAnimationFrame(tick);
-  }
-
+  /* ── Replay ──────────────────────────────────────────────── */
   window.replayPuzzle = function() {
-    animDone = false;
-    startTime = null;
-    shown.clear();
-    // Reset piece positions
-    pieces.forEach(p => {
-      const angle = Math.random() * Math.PI * 2;
-      const dist  = 120 + Math.random() * 80;
-      p.x = CW/2 + Math.cos(angle)*dist;
-      p.y = CH/2 + Math.sin(angle)*dist;
-      p.rot = (Math.random()-0.5) * Math.PI * 0.8;
-      p.driftX = (Math.random()-0.5)*0.4;
-      p.driftY = (Math.random()-0.5)*0.4;
-      p.driftRot = (Math.random()-0.5)*0.004;
-      p.placed = false;
+    animDone=false; startTime=null; shown.clear();
+    pieces.forEach((p,i) => {
+      const s=initState[i];
+      const a=Math.random()*Math.PI*2, d=130+Math.random()*70;
+      p.x=CW/2+Math.cos(a)*d; p.y=CH/2+Math.sin(a)*d;
+      p.rot=(Math.random()-0.5)*Math.PI*0.9;
+      p.driftX=(Math.random()-0.5)*0.45; p.driftY=(Math.random()-0.5)*0.45;
+      p.driftRot=(Math.random()-0.5)*0.005; p.placed=false;
     });
-    // Reset CSS classes
-    ['puzzle-eyebrow','puzzle-question','puzzle-answer-wrap','puzzle-cta'].forEach(cn => {
-      document.querySelectorAll('.'+cn).forEach(el => el.classList.remove('visible'));
+    ['puzzle-q-wrap','puzzle-a-wrap','puzzle-cta-wrap'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.classList.remove('visible');el.querySelectorAll('[class]').forEach(c=>c.classList.remove('visible'));}
     });
     requestAnimationFrame(tick);
   };
 
-  const obs = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) { startAnim(); obs.disconnect(); }
-  }, { threshold: 0.3 });
+  /* ── Start on scroll into view ───────────────────────────── */
+  let started=false;
+  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){if(!started){started=true;requestAnimationFrame(tick);}obs.disconnect();}},{threshold:0.25});
   obs.observe(canvas);
 })();
 </script>
