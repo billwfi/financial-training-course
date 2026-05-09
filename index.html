@@ -199,6 +199,490 @@
   <div class="stat"><div class="stat-value">Free</div><div class="stat-label">Access</div></div>
 </div>
 
+<!-- ── Jigsaw Animation Section ──────────────────────────── -->
+<section class="puzzle-section" id="puzzle-section">
+  <div class="puzzle-inner">
+
+    <div class="puzzle-canvas-wrap">
+      <canvas id="puzzle-canvas" width="440" height="440"></canvas>
+      <button class="puzzle-replay-btn" id="puzzle-replay" onclick="replayPuzzle()" title="Replay">↺</button>
+    </div>
+
+    <div class="puzzle-text-col">
+      <div class="puzzle-q-wrap" id="puzzle-q-wrap">
+        <p class="puzzle-eyebrow">The philosophy behind this course</p>
+        <h2 class="puzzle-question" id="puzzle-q">What's the most important piece of a jigsaw puzzle?</h2>
+      </div>
+      <div class="puzzle-answer-wrap" id="puzzle-a-wrap">
+        <div class="puzzle-answer" id="puzzle-a">The next one.</div>
+        <p class="puzzle-sub" id="puzzle-sub">
+          You don't need a perfect financial plan to get started.<br>
+          You need the <em>next piece</em> — the next habit, the next decision, the next lesson.<br><br>
+          That's how lasting wealth is built. One piece at a time.
+        </p>
+        <a href="course.html" class="btn btn-primary puzzle-cta" id="puzzle-cta">
+          Find your next piece →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .puzzle-section {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, #1e2f52 100%);
+    padding: 72px 40px;
+    overflow: hidden;
+  }
+  .puzzle-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .puzzle-canvas-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #puzzle-canvas {
+    width: 100%;
+    max-width: 440px;
+    border-radius: var(--radius-lg);
+  }
+  .puzzle-replay-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .puzzle-replay-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+  /* Text column */
+  .puzzle-text-col { color: var(--white); }
+  .puzzle-eyebrow {
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .puzzle-eyebrow.visible { opacity: 1; transform: translateY(0); }
+
+  .puzzle-question {
+    color: var(--white);
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    line-height: 1.3;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+  }
+  .puzzle-question.visible { opacity: 1; transform: translateY(0); }
+
+  .puzzle-answer-wrap {
+    margin-top: 32px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .puzzle-answer-wrap.visible { opacity: 1; transform: translateY(0); }
+
+  .puzzle-answer {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  .puzzle-sub {
+    color: rgba(255,255,255,0.75);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 28px;
+  }
+  .puzzle-sub em { color: var(--gold-light); font-style: normal; font-weight: 600; }
+  .puzzle-cta { opacity: 0; transition: opacity 0.6s ease 0.3s; }
+  .puzzle-cta.visible { opacity: 1; }
+
+  @media (max-width: 900px) {
+    .puzzle-inner { grid-template-columns: 1fr; gap: 32px; }
+    .puzzle-section { padding: 52px 20px; }
+    #puzzle-canvas { max-width: 320px; }
+  }
+</style>
+
+<script>
+/* ── Jigsaw Puzzle Animation ─────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('puzzle-canvas');
+  const ctx = canvas.getContext('2d');
+  const CW = 440, CH = 440;
+  canvas.width = CW; canvas.height = CH;
+
+  const COLS = 3, ROWS = 3;
+  const PW = 100, PH = 100;                    // piece size (world)
+  const OX = (CW - COLS * PW) / 2;            // puzzle origin x on canvas
+  const OY = (CH - ROWS * PH) / 2;            // puzzle origin y on canvas
+  const SPECIAL = { r: 1, c: 1 };             // center piece is "the next one"
+
+  // Tab pattern: rowGap[gapRow][col], colGap[gapCol][row]
+  // 1 = tab protrudes from the lower/right piece, -1 = blank on that edge
+  const ROW_GAP = [[1,-1,1],[-1,1,-1]];
+  const COL_GAP = [[1,-1,1],[-1,1,-1]];
+
+  function tabsFor(r, c) {
+    return {
+      top:    r === 0          ? 0 : -ROW_GAP[r-1][c],
+      bottom: r === ROWS-1     ? 0 :  ROW_GAP[r][c],
+      left:   c === 0          ? 0 : -COL_GAP[c-1][r],
+      right:  c === COLS-1     ? 0 :  COL_GAP[c][r],
+    };
+  }
+
+  /* Draw one piece centred at (0,0) using bezier curves */
+  function drawPiecePath(w, h, {top, right, bottom, left}) {
+    const e = h * 0.23;    // tab protrusion
+    const b = w * 0.15;    // half tab-base width
+
+    function tabEdge(x1,y1, x2,y2, dir) {
+      // dir: perpendicular direction (+1 = outward, -1 = inward)
+      const mx = (x1+x2)/2, my = (y1+y2)/2;
+      const dx = x2-x1, dy = y2-y1;
+      const nx = -dy * dir * e / Math.hypot(dx,dy);
+      const ny =  dx * dir * e / Math.hypot(dx,dy);
+      const bx = dx * b / Math.hypot(dx,dy);
+      const by = dy * b / Math.hypot(dx,dy);
+      ctx.lineTo(mx - bx, my - by);
+      ctx.bezierCurveTo(
+        mx - bx, my - by + ny*0.4,
+        mx - bx*0.5 + nx, my - by*0.5 + ny,
+        mx + nx, my + ny
+      );
+      ctx.bezierCurveTo(
+        mx + bx*0.5 + nx, my + by*0.5 + ny,
+        mx + bx, my + by + ny*0.4,
+        mx + bx, my + by
+      );
+      ctx.lineTo(x2, y2);
+    }
+
+    const hw = w/2, hh = h/2;
+    ctx.beginPath();
+    ctx.moveTo(-hw, -hh);
+
+    // Top edge
+    if (top === 0) ctx.lineTo(hw, -hh);
+    else tabEdge(-hw,-hh, hw,-hh, -top);
+
+    // Right edge
+    if (right === 0) ctx.lineTo(hw, hh);
+    else tabEdge(hw,-hh, hw,hh, right);
+
+    // Bottom edge
+    if (bottom === 0) ctx.lineTo(-hw, hh);
+    else tabEdge(hw,hh, -hw,hh, bottom);
+
+    // Left edge
+    if (left === 0) ctx.lineTo(-hw, -hh);
+    else tabEdge(-hw,hh, -hw,-hh, -left);
+
+    ctx.closePath();
+  }
+
+  /* ── Piece state ─────────────────────────────────────────── */
+  const pieces = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const tx = OX + c * PW + PW/2;
+      const ty = OY + r * PH + PH/2;
+      const isSpecial = (r === SPECIAL.r && c === SPECIAL.c);
+      // Scatter start positions
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 120 + Math.random() * 80;
+      pieces.push({
+        r, c,
+        tabs: tabsFor(r, c),
+        tx, ty,
+        x: CW/2 + Math.cos(angle)*dist,
+        y: CH/2 + Math.sin(angle)*dist,
+        rot: (Math.random()-0.5) * Math.PI * 0.8,
+        driftX: (Math.random()-0.5)*0.4,
+        driftY: (Math.random()-0.5)*0.4,
+        driftRot: (Math.random()-0.5)*0.004,
+        isSpecial,
+        placed: false,
+      });
+    }
+  }
+
+  /* ── Easing ─────────────────────────────────────────────── */
+  const ease = {
+    out:    t => 1 - Math.pow(1-t, 3),
+    inOut:  t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2,
+    spring: t => {
+      const c4 = (2*Math.PI)/3;
+      return t === 0 ? 0 : t === 1 ? 1 :
+        Math.pow(2,-10*t) * Math.sin((t*10-0.75)*c4) + 1;
+    }
+  };
+
+  function lerp(a, b, t) { return a + (b-a)*t; }
+  function lerpAngle(a, b, t) {
+    let d = ((b-a) % (Math.PI*2) + Math.PI*3) % (Math.PI*2) - Math.PI;
+    return a + d*t;
+  }
+
+  /* ── Animation phases ────────────────────────────────────── */
+  // Phase 0: scatter drift            0  – 2.5s
+  // Phase 1: question text visible    2s (CSS class added)
+  // Phase 2: 8 pieces assemble        2.5 – 7.5s (staggered)
+  // Phase 3: special piece pulses     7.5 – 9.5s
+  // Phase 4: answer text visible      8.5s (CSS class added)
+  // Phase 5: special piece snaps in   9.5 – 11s
+  // Phase 6: full glow + CTA          11s+
+
+  const NON_SPECIAL = pieces.filter(p => !p.isSpecial);
+  const SPECIAL_PIECE = pieces.find(p => p.isSpecial);
+
+  let startTime = null;
+  let animDone = false;
+
+  function tick(ts) {
+    if (!startTime) startTime = ts;
+    const T = (ts - startTime) / 1000;
+
+    ctx.clearRect(0, 0, CW, CH);
+
+    // Background
+    ctx.fillStyle = 'rgba(17,27,48,0)';
+    ctx.fillRect(0, 0, CW, CH);
+
+    // Show question text
+    if (T >= 2.0) showText('puzzle-q-wrap', ['puzzle-eyebrow','puzzle-question']);
+
+    // Assemble non-special pieces staggered between 2.5s and 7.5s
+    NON_SPECIAL.forEach((p, i) => {
+      const delay = 2.5 + i * (5.0 / NON_SPECIAL.length);
+      const dur   = 1.2;
+      const t     = Math.max(0, Math.min(1, (T - delay) / dur));
+      const te    = ease.spring(t);
+
+      if (t >= 1) { p.placed = true; }
+
+      p.x   = lerp(p.x,   p.tx,  t < 1 ? ease.out(t)*0.06 : 1) ;
+      p.y   = lerp(p.y,   p.ty,  t < 1 ? ease.out(t)*0.06 : 1) ;
+      p.rot = lerpAngle(p.rot, 0, t < 1 ? ease.out(t)*0.06 : 1);
+
+      if (!p.placed) {
+        p.x   = lerp(p.x,   p.tx,  te * (t > 0 ? 1 : 0));
+        p.y   = lerp(p.y,   p.ty,  te * (t > 0 ? 1 : 0));
+        p.rot = lerpAngle(p.rot, 0, te * (t > 0 ? 1 : 0));
+      } else {
+        p.x = p.tx; p.y = p.ty; p.rot = 0;
+      }
+
+      if (t < 1) {
+        p.x += p.driftX;
+        p.y += p.driftY;
+        p.rot += p.driftRot;
+      }
+    });
+
+    // Properly assemble non-special pieces (force once t>=1)
+    NON_SPECIAL.forEach(p => {
+      const delay = 2.5 + NON_SPECIAL.indexOf(p) * (5.0 / NON_SPECIAL.length);
+      const t = Math.max(0, Math.min(1, (T - delay) / 1.2));
+      const te = ease.spring(t);
+      if (t > 0 && t < 1) {
+        const ix = p.x; const iy = p.y; const ir = p.rot;
+        p.x   = lerp(ix, p.tx, te);
+        p.y   = lerp(iy, p.ty, te);
+        p.rot = lerpAngle(ir, 0, te);
+      }
+      if (t >= 1) { p.x = p.tx; p.y = p.ty; p.rot = 0; }
+    });
+
+    // Special piece: drift until T=9.5, then snap
+    if (T < 7.5) {
+      SPECIAL_PIECE.x += SPECIAL_PIECE.driftX;
+      SPECIAL_PIECE.y += SPECIAL_PIECE.driftY;
+      SPECIAL_PIECE.rot += SPECIAL_PIECE.driftRot;
+      // Gentle bounce off canvas edges
+      if (SPECIAL_PIECE.x < 30 || SPECIAL_PIECE.x > CW-30) SPECIAL_PIECE.driftX *= -1;
+      if (SPECIAL_PIECE.y < 30 || SPECIAL_PIECE.y > CH-30) SPECIAL_PIECE.driftY *= -1;
+    } else if (T < 9.5) {
+      // Orbit around its target position
+      const orbit = 55 * Math.max(0, 1 - (T-7.5)/2);
+      const a = T * 1.2;
+      SPECIAL_PIECE.x = SPECIAL_PIECE.tx + Math.cos(a) * orbit;
+      SPECIAL_PIECE.y = SPECIAL_PIECE.ty + Math.sin(a) * orbit - 15;
+      SPECIAL_PIECE.rot = Math.sin(T * 1.5) * 0.18;
+    } else {
+      // Snap into place
+      const t = Math.min(1, (T - 9.5) / 1.3);
+      const te = ease.spring(t);
+      SPECIAL_PIECE.x   = lerp(SPECIAL_PIECE.x,   SPECIAL_PIECE.tx, te);
+      SPECIAL_PIECE.y   = lerp(SPECIAL_PIECE.y,   SPECIAL_PIECE.ty, te);
+      SPECIAL_PIECE.rot = lerpAngle(SPECIAL_PIECE.rot, 0, te);
+      if (t >= 1) { SPECIAL_PIECE.x = SPECIAL_PIECE.tx; SPECIAL_PIECE.y = SPECIAL_PIECE.ty; SPECIAL_PIECE.rot = 0; }
+    }
+
+    // Answer text at 8.5s
+    if (T >= 8.5) showText('puzzle-a-wrap', ['puzzle-answer-wrap']);
+
+    // CTA at 11.5s
+    if (T >= 11.5) showText('puzzle-cta', ['puzzle-cta']);
+
+    // Draw assembled outline (grid) as ghost guide
+    const guideAlpha = Math.min(0.15, (T - 1) * 0.08);
+    if (guideAlpha > 0) {
+      ctx.save();
+      ctx.strokeStyle = `rgba(201,162,39,${guideAlpha})`;
+      ctx.lineWidth = 1;
+      for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+        ctx.strokeRect(OX + c*PW + 1, OY + r*PH + 1, PW-2, PH-2);
+      }
+      ctx.restore();
+    }
+
+    // Draw all non-special pieces
+    NON_SPECIAL.forEach(p => drawPiece(p, T, false));
+
+    // Draw special piece last (on top)
+    drawPiece(SPECIAL_PIECE, T, true);
+
+    // Completion glow overlay
+    if (T >= 10.8) {
+      const glow = Math.min(1, (T - 10.8) / 0.8);
+      ctx.save();
+      ctx.globalAlpha = glow * 0.12;
+      const grad = ctx.createRadialGradient(CW/2, CH/2, 10, CW/2, CH/2, 200);
+      grad.addColorStop(0, '#c9a227');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, CW, CH);
+      ctx.restore();
+    }
+
+    if (!animDone) requestAnimationFrame(tick);
+  }
+
+  function drawPiece(p, T, isS) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    // Shadow
+    ctx.shadowColor = isS ? 'rgba(201,162,39,0.5)' : 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur  = isS ? (T > 7.5 && T < 9.5 ? 24 + Math.sin(T*3)*8 : 16) : 8;
+    ctx.shadowOffsetY = isS ? 0 : 4;
+
+    drawPiecePath(PW, PH, p.tabs);
+
+    // Fill
+    if (isS) {
+      const pulse = T > 7.5 && T < 9.5 ? 0.08 * Math.sin(T * 4) : 0;
+      ctx.fillStyle = `rgba(${201 + Math.round(pulse*100)}, ${162 + Math.round(pulse*60)}, 39, 0.92)`;
+    } else {
+      ctx.fillStyle = p.placed ? 'rgba(230,235,248,0.92)' : 'rgba(210,218,240,0.75)';
+    }
+    ctx.fill();
+
+    // Stroke
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = isS ? 'rgba(201,162,39,0.6)' : 'rgba(100,120,160,0.35)';
+    ctx.lineWidth = isS ? 1.5 : 1;
+    ctx.stroke();
+
+    // Inner highlight
+    ctx.save();
+    const ig = ctx.createLinearGradient(-PW/2, -PH/2, PW/2, PH/2);
+    ig.addColorStop(0, 'rgba(255,255,255,0.18)');
+    ig.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = ig;
+    drawPiecePath(PW, PH, p.tabs);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  /* ── Text reveal helpers ─────────────────────────────────── */
+  const shown = new Set();
+  function showText(wrapperId, classNames) {
+    if (shown.has(wrapperId)) return;
+    shown.add(wrapperId);
+    const wrap = document.getElementById(wrapperId);
+    if (wrap) {
+      classNames.forEach(cn => {
+        const el = document.getElementById(wrapperId) || wrap.querySelector('.' + cn);
+        if (el && el.id === wrapperId) el.classList.add('visible');
+        wrap.querySelectorAll('.' + cn).forEach(e => e.classList.add('visible'));
+        // also try direct class match
+        const direct = document.querySelector('.' + cn);
+        if (direct) direct.classList.add('visible');
+      });
+      if (wrap.classList.contains('puzzle-cta')) wrap.classList.add('visible');
+      wrap.classList.add('visible');
+    }
+  }
+
+  /* ── Intersection Observer: start when visible ───────────── */
+  let started = false;
+  function startAnim() {
+    if (started) return;
+    started = true;
+    requestAnimationFrame(tick);
+  }
+
+  window.replayPuzzle = function() {
+    animDone = false;
+    startTime = null;
+    shown.clear();
+    // Reset piece positions
+    pieces.forEach(p => {
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 120 + Math.random() * 80;
+      p.x = CW/2 + Math.cos(angle)*dist;
+      p.y = CH/2 + Math.sin(angle)*dist;
+      p.rot = (Math.random()-0.5) * Math.PI * 0.8;
+      p.driftX = (Math.random()-0.5)*0.4;
+      p.driftY = (Math.random()-0.5)*0.4;
+      p.driftRot = (Math.random()-0.5)*0.004;
+      p.placed = false;
+    });
+    // Reset CSS classes
+    ['puzzle-eyebrow','puzzle-question','puzzle-answer-wrap','puzzle-cta'].forEach(cn => {
+      document.querySelectorAll('.'+cn).forEach(el => el.classList.remove('visible'));
+    });
+    requestAnimationFrame(tick);
+  };
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { startAnim(); obs.disconnect(); }
+  }, { threshold: 0.3 });
+  obs.observe(canvas);
+})();
+</script>
+
 <!-- Wheel of Life Section -->
 <section class="wheel-section">
   <div class="section-title">The Wheel of Life Framework</div>
