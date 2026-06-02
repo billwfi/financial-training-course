@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Power of Starting Early | LifeWealth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #1a2744;
+      --navy-dark: #111b30;
+      --navy-light:#243356;
+      --gold:      #c9a227;
+      --gold-lt:   #e8be45;
+      --green:     #22c55e;
+      --white:     #ffffff;
+      --gray-500:  #7a87a8;
+      --gray-700:  #3d4f6e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ─── Starfield ─── */
+    #stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .star {
+      position: absolute; width: 2px; height: 2px;
+      border-radius: 50%; background: rgba(255,255,255,0.35);
+    }
+
+    /* ─── Stage ─── */
+    .wrapper {
+      position: relative; z-index: 1;
+      width: min(920px, 98vw);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+
+    .stage {
+      width: 100%; height: 500px;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      background: linear-gradient(160deg, #192240 0%, #111b30 100%);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    /* ─── Scenes ─── */
+    .scene {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 36px 48px;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+      pointer-events: none;
+    }
+    .scene.active {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+    .scene.out {
+      opacity: 0; transform: translateY(-28px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    /* ─── Progress + Controls ─── */
+    .progress-bar {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+
+    .controls {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ctrl {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--white); font-family: inherit;
+      font-size: 0.82rem; font-weight: 600;
+      padding: 7px 18px; border-radius: 999px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .ctrl:hover { background: rgba(255,255,255,0.15); }
+    .ctrl.primary {
+      background: rgba(201,162,39,0.15);
+      border-color: var(--gold); color: var(--gold-lt);
+    }
+    .ctrl.primary:hover { background: rgba(201,162,39,0.28); }
+
+    .sc-label {
+      font-size: 0.78rem; color: rgba(255,255,255,0.3);
+      min-width: 44px; text-align: center;
+    }
+
+    /* ─── Floating particles ─── */
+    .particle {
+      position: absolute; pointer-events: none; z-index: 10;
+      animation: floatUp var(--dur, 2.8s) ease-out forwards;
+      font-size: var(--size, 1.4rem);
+    }
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(0.8); }
+      100% { opacity: 0; transform: translateY(-240px) rotate(var(--rot,180deg)) scale(1.3); }
+    }
+
+    /* ══════════════════════════════════════════
+       SCENE 1 — Title
+    ══════════════════════════════════════════ */
+    .s1-title {
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 900; line-height: 1.1;
+      text-align: center; margin-bottom: 18px;
+    }
+    .s1-title em { font-style: normal; color: var(--gold-lt); }
+    .s1-sub {
+      font-size: 1.15rem; color: rgba(255,255,255,0.62);
+      text-align: center; max-width: 560px; line-height: 1.7;
+    }
+    .s1-badge {
+      margin-top: 26px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.4);
+      border-radius: 999px; padding: 8px 20px;
+      font-size: 0.88rem; color: var(--gold-lt);
+      animation: pulseBadge 2s ease-in-out infinite;
+    }
+    @keyframes pulseBadge {
+      0%,100% { box-shadow: 0 0 0 0 rgba(201,162,39,0); }
+      50%      { box-shadow: 0 0 0 8px rgba(201,162,39,0.1); }
+    }
+
+    /* ══════════════════════════════════════════
+       SCENE 2 — Meet Alex
+    ══════════════════════════════════════════ */
+    .s2-wrap { display: flex; align-items: center; gap: 48px; }
+    .s2-char { animation: bounceIn 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+    @keyframes bounceIn {
+      0% { transform: scale(0.2) translateY(40px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .s2-info { display: flex; flex-direction: column; gap: 16px; }
+    .s2-name { font-size: 2rem; font-weight: 800; }
+    .s2-age  {
+      display: inline-flex; align-items: center;
+      background: var(--gold); color: var(--navy-dark);
+      font-weight: 800; font-size: 1.1rem;
+      padding: 6px 18px; border-radius: 999px;
+      width: fit-content;
+    }
+    .s2-amount {
+      font-size: 2.8rem; font-weight: 900; color: var(--green);
+      animation: popIn 0.5s 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .s2-note { font-size: 0.95rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+    /* ══════════════════════════════════════════
+       SCENE 3 — Investing years
+    ══════════════════════════════════════════ */
+    .s3-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .s3-header { display: flex; gap: 60px; justify-content: center; }
+    .s3-big   { text-align: center; }
+    .s3-big .num { font-size: 3.8rem; font-weight: 900; color: var(--gold-lt); line-height: 1; }
+    .s3-big .lbl { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+    .s3-big .num.green { color: var(--green); }
+
+    .coin-grid {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 6px; max-width: 620px;
+    }
+    .coin {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--gold-lt), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800; color: var(--navy-dark);
+      opacity: 0; transform: scale(0);
+      transition: opacity 0.25s, transform 0.25s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .coin.on { opacity: 1; transform: scale(1); }
+
+    /* ══════════════════════════════════════════
+       SCENE 4 — Stop at 35
+    ══════════════════════════════════════════ */
+    .s4-wrap { text-align: center; }
+    .s4-age-label { font-size: 1rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+    .s4-age {
+      font-size: 7rem; font-weight: 900; color: var(--gold);
+      line-height: 1;
+      animation: zoomBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    @keyframes zoomBounce {
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .s4-line1 { font-size: 1.4rem; font-weight: 700; margin: 18px 0 6px; }
+    .s4-line1 span { color: var(--gold-lt); }
+    .s4-line2 { font-size: 1.05rem; color: rgba(255,255,255,0.6); font-style: italic; }
+    .s4-icon  { font-size: 2.8rem; margin-top: 16px; animation: spin 3s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════════
+       SCENE 5 — Growth chart
+    ══════════════════════════════════════════ */
+    .s5-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .s5-title { font-size: 1.1rem; color: rgba(255,255,255,0.7); font-weight: 600; }
+
+    .bar-chart {
+      width: 100%; max-width: 700px;
+      display: flex; align-items: flex-end; gap: 6px;
+      height: 220px;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      padding-bottom: 0;
+    }
+    .bar-col {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end; gap: 4px;
+    }
+    .bar-val {
+      font-size: 0.62rem; color: rgba(255,255,255,0);
+      transition: color 0.4s 0.2s; white-space: nowrap; font-weight: 600;
+    }
+    .bar-val.show { color: rgba(255,255,255,0.75); }
+    .bar-rect {
+      width: 100%; min-height: 3px;
+      background: linear-gradient(to top, var(--gold), var(--gold-lt));
+      border-radius: 5px 5px 0 0;
+      height: 0;
+      transition: height 0.5s cubic-bezier(0.34,1.12,0.64,1);
+      box-shadow: 0 0 12px rgba(201,162,39,0.3);
+    }
+    .bar-age {
+      font-size: 0.7rem; color: rgba(255,255,255,0.4);
+      margin-top: 6px; white-space: nowrap;
+    }
+    .s5-note { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+
+    /* ══════════════════════════════════════════
+       SCENE 6 — Big reveal
+    ══════════════════════════════════════════ */
+    .s6-wrap { text-align: center; }
+    .s6-eyebrow { font-size: 1.1rem; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+    .s6-amount {
+      font-size: clamp(3.4rem, 8vw, 5.8rem); font-weight: 900;
+      color: var(--green); line-height: 1; margin-bottom: 12px;
+    }
+    .s6-from { font-size: 1rem; color: rgba(255,255,255,0.6); }
+    .s6-from strong { color: var(--white); }
+
+    .s6-stat-row {
+      display: flex; gap: 20px; justify-content: center; margin-top: 24px;
+    }
+    .s6-stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 14px 22px; text-align: center;
+    }
+    .s6-stat.gold-stat {
+      background: rgba(201,162,39,0.1);
+      border-color: rgba(201,162,39,0.4);
+    }
+    .s6-stat-num { font-size: 1.8rem; font-weight: 800; color: var(--gold-lt); }
+    .s6-stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+    /* ══════════════════════════════════════════
+       SCENE 7 — Comparison
+    ══════════════════════════════════════════ */
+    .s7-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .s7-headline { font-size: 1.1rem; color: rgba(255,255,255,0.65); text-align: center; }
+    .s7-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 720px; }
+
+    .cmp-card {
+      border-radius: 14px; padding: 22px; text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .cmp-card.winner {
+      background: rgba(201,162,39,0.08);
+      border-color: rgba(201,162,39,0.5);
+    }
+    .cmp-name { font-size: 1.4rem; font-weight: 800; margin-bottom: 3px; }
+    .cmp-ages { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-bottom: 14px; }
+    .cmp-row  { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 3px; }
+    .cmp-amount {
+      font-size: 2.4rem; font-weight: 900; margin-top: 10px;
+      color: rgba(255,255,255,0.3);
+    }
+    .cmp-card.winner .cmp-amount { color: var(--green); }
+    .cmp-badge {
+      display: inline-block; margin-top: 10px;
+      background: var(--gold); color: var(--navy-dark);
+      font-size: 0.7rem; font-weight: 800;
+      padding: 4px 12px; border-radius: 999px;
+    }
+
+    /* ══════════════════════════════════════════
+       SCENE 8 — Lesson
+    ══════════════════════════════════════════ */
+    .s8-wrap { text-align: center; max-width: 680px; }
+    .s8-headline {
+      font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 900;
+      line-height: 1.2; margin-bottom: 20px;
+    }
+    .s8-headline em { font-style: normal; color: var(--gold-lt); }
+    .s8-pills {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      margin-bottom: 28px;
+    }
+    .s8-pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 7px 16px; border-radius: 999px;
+      font-size: 0.88rem; color: rgba(255,255,255,0.8);
+    }
+    .cta-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      color: var(--navy-dark); font-weight: 800; font-size: 1rem;
+      padding: 14px 34px; border-radius: 999px;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 20px rgba(201,162,39,0.35);
+    }
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(201,162,39,0.5);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
+      .stage { height: 560px; }
+      .s2-wrap { flex-direction: column; gap: 20px; }
+      .s7-cards { grid-template-columns: 1fr; gap: 12px; }
+      .s6-stat-row { flex-direction: column; gap: 12px; }
+      .s3-header { gap: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div class="wrapper">
+
+  <!-- ─── Stage ─── -->
+  <div class="stage" id="stage">
+
+    <!-- Scene 1: Title -->
+    <div class="scene" id="sc1">
+      <div class="s1-title">The Power of<br><em>Starting Early</em></div>
+      <div class="s1-sub">What happens when a 21-year-old invests just $200 a month — and then stops at 35?</div>
+      <div class="s1-badge">💡 Based on 8% average annual return</div>
+    </div>
+
+    <!-- Scene 2: Meet Alex -->
+    <div class="scene" id="sc2">
+      <div class="s2-wrap">
+        <div class="s2-char">
+          <svg width="130" height="180" viewBox="0 0 130 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- hair -->
+            <path d="M30 52 Q65 18 100 52" fill="#5C3A1E"/>
+            <!-- head -->
+            <circle cx="65" cy="58" r="30" fill="#F5C99C"/>
+            <!-- eyes -->
+            <circle cx="55" cy="54" r="4" fill="#2c3e50"/>
+            <circle cx="75" cy="54" r="4" fill="#2c3e50"/>
+            <circle cx="56.5" cy="52.5" r="1.5" fill="white"/>
+            <circle cx="76.5" cy="52.5" r="1.5" fill="white"/>
+            <!-- smile -->
+            <path d="M55 66 Q65 76 75 66" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- body -->
+            <rect x="38" y="88" width="54" height="58" rx="10" fill="#3498db"/>
+            <!-- collar -->
+            <path d="M52 88 L65 104 L78 88" stroke="#2980b9" stroke-width="2" fill="none"/>
+            <!-- left arm -->
+            <line x1="38" y1="98" x2="10" y2="132" stroke="#F5C99C" stroke-width="12" stroke-linecap="round"/>
+            <!-- right arm holding coin -->
+            <line x1="92" y1="98" x2="118" y2="128" stroke="#F5C99C" stroke-width="12" stroke-linecap="round"/>
+            <!-- coin in hand -->
+            <circle cx="120" cy="132" r="12" fill="var(--gold)" stroke="#c9a227" stroke-width="2"/>
+            <text x="120" y="137" text-anchor="middle" font-size="13" font-weight="900" fill="#111b30">$</text>
+            <!-- left leg -->
+            <line x1="55" y1="146" x2="46" y2="176" stroke="#2c3e50" stroke-width="14" stroke-linecap="round"/>
+            <!-- right leg -->
+            <line x1="75" y1="146" x2="84" y2="176" stroke="#2c3e50" stroke-width="14" stroke-linecap="round"/>
+            <!-- shoes -->
+            <ellipse cx="41" cy="179" rx="18" ry="8" fill="#1a252f"/>
+            <ellipse cx="89" cy="179" rx="18" ry="8" fill="#1a252f"/>
+          </svg>
+        </div>
+        <div class="s2-info">
+          <div class="s2-name">Meet Alex</div>
+          <div class="s2-age">🎓 Age 21</div>
+          <div>
+            <div class="s2-amount">$200<span style="font-size:1.4rem;font-weight:700;color:rgba(34,197,94,0.7)">/mo</span></div>
+            <div class="s2-note">invested every month<br>into a diversified index fund</div>
+          </div>
+          <div class="s2-note" style="margin-top:4px;">
+            "I'll do this until I'm 35,<br>then let it ride."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 3: Investment years -->
+    <div class="scene" id="sc3">
+      <div class="s3-wrap">
+        <div class="s3-header">
+          <div class="s3-big">
+            <div class="num" id="year-num">21</div>
+            <div class="lbl">Alex's age</div>
+          </div>
+          <div class="s3-big">
+            <div class="num green" id="total-num">$200</div>
+            <div class="lbl">Total invested</div>
+          </div>
+        </div>
+        <div class="coin-grid" id="coin-grid"></div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.35);">Each coin = one month of $200</div>
+      </div>
+    </div>
+
+    <!-- Scene 4: Stop at 35 -->
+    <div class="scene" id="sc4">
+      <div class="s4-wrap">
+        <div class="s4-age-label">Alex reaches age</div>
+        <div class="s4-age">35</div>
+        <div class="s4-line1">Stops investing. Total put in: <span>$33,600</span></div>
+        <div class="s4-line2">"But the money doesn't stop working..."</div>
+        <div class="s4-icon">⏳</div>
+      </div>
+    </div>
+
+    <!-- Scene 5: Growth chart -->
+    <div class="scene" id="sc5">
+      <div class="s5-wrap">
+        <div class="s5-title">Alex's $33,600 grows on its own — ages 35 to 65</div>
+        <div class="bar-chart" id="bar-chart"></div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);">Assuming 8% average annual return · No additional contributions</div>
+      </div>
+    </div>
+
+    <!-- Scene 6: Big reveal -->
+    <div class="scene" id="sc6">
+      <div class="s6-wrap">
+        <div class="s6-eyebrow">At age 65, Alex's portfolio is worth...</div>
+        <div class="s6-amount" id="reveal-num">$0</div>
+        <div class="s6-from">From just <strong>$33,600</strong> invested between ages 21–35</div>
+        <div class="s6-stat-row">
+          <div class="s6-stat gold-stat">
+            <div class="s6-stat-num">~20×</div>
+            <div class="s6-stat-lbl">return on money invested</div>
+          </div>
+          <div class="s6-stat">
+            <div class="s6-stat-num">14 yrs</div>
+            <div class="s6-stat-lbl">of investing, then nothing</div>
+          </div>
+          <div class="s6-stat">
+            <div class="s6-stat-num">30 yrs</div>
+            <div class="s6-stat-lbl">of compound growth</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 7: Comparison -->
+    <div class="scene" id="sc7">
+      <div class="s7-wrap">
+        <div class="s7-headline">What if someone waited until 35 to start — and invested all the way to retirement?</div>
+        <div class="s7-cards">
+          <div class="cmp-card winner">
+            <div class="cmp-name">Alex 🏆</div>
+            <div class="cmp-ages">Invested ages 21 – 35 only</div>
+            <div class="cmp-row">168 payments</div>
+            <div class="cmp-row">Total contributed: <strong style="color:var(--white)">$33,600</strong></div>
+            <div class="cmp-amount" id="alex-num">$0</div>
+            <div class="cmp-badge">Invested LESS · Earned MORE</div>
+          </div>
+          <div class="cmp-card">
+            <div class="cmp-name">Sam</div>
+            <div class="cmp-ages">Invested ages 35 – 65</div>
+            <div class="cmp-row">360 payments</div>
+            <div class="cmp-row">Total contributed: <strong style="color:var(--white)">$72,000</strong></div>
+            <div class="cmp-amount" id="sam-num">$0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 8: Lesson -->
+    <div class="scene" id="sc8">
+      <div class="s8-wrap">
+        <div class="s8-headline">Time is your<br><em>greatest financial asset.</em></div>
+        <div class="s8-pills">
+          <div class="s8-pill">Start at 21</div>
+          <div class="s8-pill">$200 / month</div>
+          <div class="s8-pill">Stop at 35</div>
+          <div class="s8-pill">Retire with $675K</div>
+          <div class="s8-pill">Compound interest does the rest</div>
+        </div>
+        <a href="intro-lifewealth/" class="cta-btn">Explore the LifeWealth Module →</a>
+      </div>
+    </div>
+
+  </div><!-- /stage -->
+
+  <!-- ─── Controls ─── -->
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+
+  <div class="controls">
+    <button class="ctrl" id="btn-prev">← Prev</button>
+    <button class="ctrl primary" id="btn-play">⏸ Pause</button>
+    <button class="ctrl" id="btn-next">Next →</button>
+    <span class="sc-label" id="sc-label">1 / 8</span>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ─── Constants ───────────────────────────────────────────
+const TOTAL = 8;
+const DURATIONS = [4000, 4500, 6500, 4000, 5500, 5200, 6500, 9000]; // ms
+
+// Bar chart data: Alex's portfolio value at each 5-yr milestone (35→65)
+// Monthly compounding at 8%/year (r=0.6667%/month)
+// Seed at 35 = $61,750 (FV of 168 × $200 payments at 0.6667%/mo)
+const BAR_AGES   = [35, 40, 45, 50, 55, 60, 65];
+const BAR_VALUES = [62000, 92000, 137000, 205000, 305000, 454000, 675000];
+
+// ─── State ───────────────────────────────────────────────
+let current  = 0;
+let playing  = true;
+let progInt  = null;
+let coinAnim = null;
+
+// ─── Boot ────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildStars();
+  buildCoins();
+  buildBarChart();
+
+  document.getElementById('btn-play').addEventListener('click', togglePlay);
+  document.getElementById('btn-prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('btn-next').addEventListener('click', () => go(current + 1));
+
+  showScene(0, true);
+});
+
+// ─── Stars ───────────────────────────────────────────────
+function buildStars() {
+  const el = document.getElementById('stars');
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `left:${rand(0,100)}%;top:${rand(0,100)}%;opacity:${rand(0.1,0.5)};`;
+    el.appendChild(s);
+  }
+}
+
+// ─── Coin grid (scene 3) ──────────────────────────────────
+function buildCoins() {
+  const grid = document.getElementById('coin-grid');
+  // 14 years × 12 months = 168, display as 56 groups of 3 months each
+  for (let i = 0; i < 56; i++) {
+    const c = document.createElement('div');
+    c.className = 'coin'; c.textContent = '$'; c.id = `coin${i}`;
+    grid.appendChild(c);
+  }
+}
+
+// ─── Bar chart (scene 5) ──────────────────────────────────
+function buildBarChart() {
+  const chart = document.getElementById('bar-chart');
+  const maxH  = 190;
+  const maxV  = Math.max(...BAR_VALUES);
+  BAR_AGES.forEach((age, i) => {
+    const col = document.createElement('div'); col.className = 'bar-col';
+    const val = document.createElement('div'); val.className = 'bar-val'; val.id = `bv${i}`;
+    val.textContent = '$' + (BAR_VALUES[i]/1000|0) + 'K';
+    const bar = document.createElement('div'); bar.className = 'bar-rect'; bar.id = `br${i}`;
+    bar.style.setProperty('--target', ((BAR_VALUES[i]/maxV)*maxH) + 'px');
+    const lbl = document.createElement('div'); lbl.className = 'bar-age';
+    lbl.textContent = `Age ${age}`;
+    col.append(val, bar, lbl);
+    chart.appendChild(col);
+  });
+}
+
+// ─── Scene management ────────────────────────────────────
+function showScene(idx, first = false) {
+  stopProgress(); stopCoinAnim();
+  if (idx < 0 || idx >= TOTAL) return;
+
+  // Exit current
+  document.querySelectorAll('.scene.active').forEach(s => {
+    s.classList.add('out');
+    s.classList.remove('active');
+    setTimeout(() => s.classList.remove('out'), 450);
+  });
+
+  current = idx;
+  const el = document.getElementById(`sc${idx+1}`);
+
+  setTimeout(() => {
+    el.classList.add('active');
+    runAnim(idx);
+    updateUI();
+    if (playing) startProgress();
+  }, first ? 0 : 280);
+}
+
+function go(idx) {
+  if (idx < 0) return;
+  resetProgress();
+  showScene(idx >= TOTAL ? 0 : idx);
+}
+
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('btn-play').textContent = playing ? '⏸ Pause' : '▶ Play';
+  playing ? startProgress() : stopProgress();
+}
+
+function updateUI() {
+  document.getElementById('sc-label').textContent = `${current+1} / ${TOTAL}`;
+}
+
+// ─── Progress bar ─────────────────────────────────────────
+let progElapsed = 0;
+const TICK = 50;
+
+function startProgress() {
+  const dur = DURATIONS[current];
+  progInt = setInterval(() => {
+    progElapsed += TICK;
+    const pct = Math.min(progElapsed / dur * 100, 100);
+    document.getElementById('prog').style.width = pct + '%';
+    if (progElapsed >= dur) go(current + 1);
+  }, TICK);
+}
+function stopProgress()  { clearInterval(progInt); progInt = null; }
+function resetProgress() { stopProgress(); progElapsed = 0; document.getElementById('prog').style.width = '0%'; }
+
+// ─── Scene Animations ─────────────────────────────────────
+function runAnim(idx) {
+  progElapsed = 0;
+  ({
+    0: animS1, 1: animS2, 2: animS3,
+    3: animS4, 4: animS5, 5: animS6,
+    6: animS7, 7: animS8,
+  }[idx] || (() => {}))();
+}
+
+function animS1() { sprayParticles(['💰','💵','📈','🪙','✨','💎'], 10); }
+function animS2() { /* CSS handles bounceIn */ }
+
+function animS3() {
+  // Reset coins
+  document.querySelectorAll('.coin').forEach(c => c.classList.remove('on'));
+  const yearEl  = document.getElementById('year-num');
+  const totalEl = document.getElementById('total-num');
+  let step = 0; const steps = 56; // 56 ticks × 3 months each = 168 months
+
+  coinAnim = setInterval(() => {
+    step++;
+    const age   = 21 + (step / steps) * 14;
+    const total = step * 600; // $600 per tick (3 months)
+    yearEl.textContent  = Math.min(Math.round(age), 35);
+    totalEl.textContent = '$' + Math.min(total, 33600).toLocaleString();
+    const coin = document.getElementById(`coin${step-1}`);
+    if (coin) coin.classList.add('on');
+    if (step >= steps) stopCoinAnim();
+  }, 100);
+}
+
+function animS4() { /* CSS handles zoomBounce */ }
+
+function animS5() {
+  const maxH = 190;
+  const maxV = Math.max(...BAR_VALUES);
+  BAR_VALUES.forEach((val, i) => {
+    setTimeout(() => {
+      document.getElementById(`br${i}`).style.height = ((val/maxV)*maxH) + 'px';
+      const lbl = document.getElementById(`bv${i}`);
+      if (lbl) lbl.classList.add('show');
+    }, i * 450);
+  });
+}
+
+function animS6() {
+  counter(document.getElementById('reveal-num'), 0, 675000, 2600,
+    v => '$' + Math.round(v).toLocaleString());
+  sprayParticles(['🎉','💰','✨','🌟','💵','🥳'], 14, 800);
+}
+
+function animS7() {
+  counter(document.getElementById('alex-num'), 0, 675000, 2000,
+    v => '$' + (Math.round(v/1000)) + 'K');
+  setTimeout(() =>
+    counter(document.getElementById('sam-num'), 0, 298000, 2000,
+      v => '$' + (Math.round(v/1000)) + 'K')
+  , 600);
+}
+
+function animS8() { /* static */ }
+
+// ─── Helpers ──────────────────────────────────────────────
+function stopCoinAnim() { clearInterval(coinAnim); coinAnim = null; }
+
+function counter(el, from, to, ms, fmt) {
+  const t0 = performance.now();
+  function tick(now) {
+    const p = Math.min((now - t0) / ms, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * ease);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function sprayParticles(emojis, count, delay = 0) {
+  const stage = document.getElementById('stage');
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emojis[i % emojis.length];
+      p.style.cssText = `
+        left:${rand(10,88)}%;
+        bottom:${rand(5,25)}%;
+        --dur:${(rand(2,3.5)).toFixed(1)}s;
+        --rot:${rand(-180,540)|0}deg;
+        --size:${rand(1.1,2.2).toFixed(1)}rem;
+      `;
+      stage.appendChild(p);
+      setTimeout(() => p.remove(), 3600);
+    }, delay + i * 180);
+  }
+}
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+</script>
+
+</body>
+</html>
